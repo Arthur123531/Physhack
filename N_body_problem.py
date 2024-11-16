@@ -127,8 +127,6 @@ def main():
 
 
     # Initial conditions
-    
-
     bodies = [EARTH]
     for i in range(5):
         bodies.append(Body(body_type="asteroid"))
