@@ -30,6 +30,8 @@ Scaling = R_EARTH/25
 G = 6.67430e-11
 speed_cap = 2
 
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
 
 
 
@@ -49,7 +51,7 @@ class Body:
             self.y = HEIGHT//2
         if vx is not None:
             self.vx = vx
-        elif body_type == "planter":
+        elif body_type == "planet":
             self.vx = 0
         else: 
             self.vx = randint(-100, 100)/200
@@ -79,14 +81,19 @@ class Body:
             self.color = BLACK
         self.trail = [(self.x, self.y)]
         self.body_type = body_type
+        self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
         #if self.body_type == "asteroid":
             #self.visible = type_props["visible"]
-
+    def tail_display(self):
+        for i in range(max(0, len(self.trail) - 500), len(self.trail)):
+                pygame.draw.circle(screen, self.color, (int(self.trail[i][0]), int(self.trail[i][1])), 2)
     def update_position(self):
         self.x += self.vx
         self.x -= EARTH.vx
         self.y += self.vy
+        self.y -= EARTH.vy
         self.trail.append((self.x, self.y))
+        self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
     def apply_force(self, fx, fy):
         ax = fx / self.mass
@@ -101,8 +108,8 @@ class Body:
             self.vy *= speed_cap
 
 def calculate_force(body1, body2):
-    dx = (body2.x - body1.x)*Scaling
-    dy = (body2.y - body1.y)*Scaling
+    dx = (body2.x - body1.x)*Scaling*10
+    dy = (body2.y - body1.y)*Scaling*10
     dist = math.sqrt(dx*dx + dy*dy)
     if dist > 0:
         force = G * body1.mass * body2.mass / (dist * dist)
@@ -118,7 +125,7 @@ EARTH = Body(body_type="planet")
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_icon(pygame.image.load('Earth.png'))
     clock = pygame.time.Clock()
 
     # Timer initialization
@@ -166,11 +173,15 @@ def main():
                 body.vy *= -1
 
             # Draw trail
-            for k in range(max(0, len(body.trail) - 500), len(body.trail)):
-                pygame.draw.circle(screen, body.color, (int(body.trail[k][0]), int(body.trail[k][1])), 2)
+            body.tail_display()
 
-            # Draw body
-            pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), body.radius)
+            pygame.draw.circle(screen, RED, (int(EARTH.x), int(EARTH.y)), 2)
+
+            if body != EARTH:
+                if body.circle.colliderect(EARTH.circle):
+                    bodies.remove(body)
+
+            
 
         #Draw timer
         screen.blit(timer_text, (0,0))
