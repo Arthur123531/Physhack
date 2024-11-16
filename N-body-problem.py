@@ -19,12 +19,15 @@ PINK = (255, 192, 203)
 PURPLE = (128, 0, 128)
 YELLOW = (255, 255, 0)
 
+
 G = 1
 speed_cap = 2
+arr = np.array([[1,1],[1,1]])
+arr.tranpose()
 
 
 class Body:
-    def __init__(self, x, y, vx, vy, mass, color):
+    def __init__(self, x, y, vx, vy, mass, color, type, type_props = {}):
         self.x = x
         self.y = y
         self.vx = vx
