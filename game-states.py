@@ -74,17 +74,17 @@ class Tutorial(State):
         self.line1 = get_font(15).render('!! WARNING WARNING !!', True, '#FFFFFF')
         self.line1_rect = self.line1.get_rect(center=(WIDTH // 2, 200))
         self.line2 = get_font(15).render('A SHOWER OF ASTEROIDS IS COMING TOWARD PLANET EARTH', True, '#FFFFFF')
-        self.line2_rect = self.line2.get_rect(center=(WIDTH // 2, 200))
+        self.line2_rect = self.line2.get_rect(center=(WIDTH // 2, 250))
         self.line3 = get_font(15).render('FORTUNATLY, BRAND NEW LUNAR INSTALLATION LET US CONTROL ITS ORBIT !', True, '#FFFFFF')
-        self.line3_rect = self.line3.get_rect(center=(WIDTH // 2, 250))
+        self.line3_rect = self.line3.get_rect(center=(WIDTH // 2, 300))
         self.line4 = get_font(15).render("USE THE UP KEY TO INCREASE THE MOON'S RADIUS", True, '#FFFFFF')
-        self.line4_rect = self.line4.get_rect(center=(WIDTH // 2, 350))
+        self.line4_rect = self.line4.get_rect(center=(WIDTH // 2, 400))
         self.line5 = get_font(15).render("USE THE DOWN KEY TO DECREASE THE MOON'S RADIUS", True, '#FFFFFF')
-        self.line5_rect = self.line5.get_rect(center=(WIDTH // 2, 400))
+        self.line5_rect = self.line5.get_rect(center=(WIDTH // 2, 450))
         self.line6 = get_font(15).render("USE THE W KEY TO INCREASE THE MOON'S VELOCITY", True, '#FFFFFF')
-        self.line6_rect = self.line6.get_rect(center=(WIDTH // 2, 450))
+        self.line6_rect = self.line6.get_rect(center=(WIDTH // 2, 500))
         self.line7 = get_font(15).render("USE THE S KEY TO DECREASE THE MOON'S VELOCITY", True, '#FFFFFF')
-        self.line7_rect = self.line7.get_rect(center=(WIDTH // 2, 500))
+        self.line7_rect = self.line7.get_rect(center=(WIDTH // 2, 550))
 
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
