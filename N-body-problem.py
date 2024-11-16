@@ -2,25 +2,26 @@ import pygame
 import math
 
 # Window dimensions
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1040, 680
 
 # Colors
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
-
-G = 10000
+EARTH_MASS = 5.9722 * 10**24
+G = 9.8
 
 
 class Body:
-    def __init__(self, x, y, vx, vy, mass, color):
+    def __init__(self, x, y, vx, vy, mass, color, radius):
         self.x = x
         self.y = y
         self.vx = vx
         self.vy = vy
         self.mass = mass
         self.color = color
+        self.radius = radius
         self.trail = [(x, y)]
 
     def update_position(self):
@@ -43,7 +44,7 @@ def calculate_force(body1, body2):
         angle = math.atan2(dy, dx)
         fx = force * math.cos(angle)
         fy = force * math.sin(angle)
-        return fx, fy
+        return fx, fy 
     else:
         return 0, 0
 
@@ -53,11 +54,13 @@ def main():
     clock = pygame.time.Clock()
 
     # Initial conditions (scaled down)
-    body1 = Body(WIDTH // 2, HEIGHT // 2, 1, 0, 100, RED)
-    body2 = Body(WIDTH // 2 + 50, HEIGHT // 2, 0, 1, 100, GREEN)
-    body3 = Body(WIDTH // 2 + 25, HEIGHT // 2 + 43.30127, 1, 1, 100, BLUE)
 
-    bodies = [body1, body2, body3]
+    earth = Body(WIDTH // 2, HEIGHT// 2, 0, 0, 10000, BLUE, 25)
+    body1 = Body(WIDTH, HEIGHT, 1, 0, 100, RED,5)
+    body2 = Body(WIDTH // 2, HEIGHT, 0, 1, 100, GREEN,5)
+    body3 = Body(WIDTH // 2 + 25, HEIGHT // 2 + 43.30127, 1, 1, 100, BLUE,5)
+
+    bodies = [earth, body1, body2, body3]
 
     running = True
     while running:
@@ -83,10 +86,11 @@ def main():
 
             # Draw trail
             for k in range(max(0, len(body.trail) - 500), len(body.trail)):
+                
                 pygame.draw.circle(screen, body.color, (int(body.trail[k][0]), int(body.trail[k][1])), 2)
 
             # Draw body
-            pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), 5)
+            pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), body.radius)
 
         pygame.display.flip()
         clock.tick(60)
