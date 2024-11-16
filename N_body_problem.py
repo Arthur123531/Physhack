@@ -289,7 +289,7 @@ def main():
             if body != EARTH:
                 if ((body.x-EARTH.x)**2+(body.y-EARTH.y)**2)**.5 <= 40:
                     bodies.remove(body)
-                    if len(bodies) == 1:
+                    if len(bodies) == 2:
                        bodies.append(Body(body_type="asteroid"))
                     collisions += 1
                     if collisions > 10:
