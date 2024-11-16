@@ -1,4 +1,5 @@
 from N_body_problem import *
+from blink_stars import *
 
 TIME_LIMIT = 1000
 
@@ -18,9 +19,12 @@ class Start(State):
         print('')
 
     def startup(self):
-        self.menu_text = get_font(50).render('PLANET LAND', True, '#b68f40')
+        self.menu_text = get_font(75).render('COSMOCRASH', True, '#b68f40')
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
+
+        #blinking stars 
+        self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -33,9 +37,9 @@ class Start(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 250),
+        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 280),
                              text_input='PLAY', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
-        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
+        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 480),
                              text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
 
         for button in [self.play_button, self.quit_button]:
@@ -48,6 +52,8 @@ class Start(State):
         screen.blit(self.menu_text, self.menu_rect)
         for button in [self.play_button, self.quit_button]:
             button.update(screen)
+        for s in self.star_list:
+            s.show(screen)
 
 class Game(State):
     def __init__(self):
