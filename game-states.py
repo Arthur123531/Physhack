@@ -165,7 +165,7 @@ class Game(State):
                 if EARTH.counter > 10:
                     self.next = 'game_over'
                     self.done = True
-            elif body != self.moon:
+            if body.body_type == "asteroid":
                 if (body.x-self.moon.x)**2 + (body.y-self.moon.y)**2 < (20)**2:
                     self.bodies.remove(body)
 
