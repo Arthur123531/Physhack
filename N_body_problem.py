@@ -92,7 +92,7 @@ class Body:
             self.scale_and_center_sprite()
         else:
             self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-        if body_type == "asteroid":
+        if body_type == "asteroid" and "visible" in type_props.keys():
             self.visible = type_props["visible"]
     def scale_and_center_sprite(self):
         if self.sprite is None:
