@@ -41,6 +41,7 @@ MOON_VEL = 1022/Scaling*150
 #sprites
 EARTH_SPRITE = pygame.image.load('Earth.png')
 ASTEROID_SPRITE = pygame.image.load("asteroid.png")
+MOON_SPRITE = pygame.image.load("moon.png")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -92,7 +93,7 @@ class Body:
         elif body_type == "planet":
             self.radius = 80
         elif body_type == "moon":
-            self.radius = 20
+            self.radius = 50
         else:
             self.radius = 50
         if color is not None:
@@ -110,6 +111,8 @@ class Body:
             self.sprite = EARTH_SPRITE.convert_alpha()
         elif body_type == "asteroid":
             self.sprite = ASTEROID_SPRITE.convert_alpha()
+        elif body_type == "moon":
+            self.sprite = MOON_SPRITE.convert_alpha()
         else:
             self.sprite = None
         if self.sprite is not None:
