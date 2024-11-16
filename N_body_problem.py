@@ -49,12 +49,16 @@ class Body:
             self.y = HEIGHT//2
         if vx is not None:
             self.vx = vx
-        else:
+        elif body_type == "planter":
             self.vx = 0
+        else: 
+            self.vx = randint(-100, 100)/200
         if vy is not None:
             self.vy = vy
-        else:
+        elif body_type == "planet":
             self.vy = 0
+        else: 
+            self.vy = randint(-100, 100)/200
         if mass is not None:
             self.mass = mass
         elif body_type == "asteroid":
@@ -120,7 +124,7 @@ def main():
     # Timer initialization
     timer_event = pygame.USEREVENT + 1
     pygame.time.set_timer(timer_event, 1000)
-    timer_counter = 10 # Change to whatever time we give
+    timer_counter = 1000 # Change to whatever time we give
 
     timer_font = pygame.font.SysFont('Arial', 30)
     timer_text = timer_font.render('Timer: ' + str(timer_counter), True, BLACK)
@@ -130,8 +134,6 @@ def main():
     
 
     bodies = [EARTH]
-    for i in range(5):
-        bodies.append(Body(body_type="asteroid"))
 
     running = True
     while running:
@@ -139,6 +141,8 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == timer_event:
+                if timer_counter % 10 == 0:
+                    bodies.append(Body(body_type="asteroid"))
                 timer_counter -= 1
                 timer_text = timer_font.render('Timer: ' + str(timer_counter), True, BLACK)
                 if timer_counter == 0:
