@@ -1,7 +1,9 @@
 from N_body_problem import *
 from blink_stars import *
+from itertools import islice
 
-TIME_LIMIT = 10
+
+TIME_LIMIT = 100
 
 class State(object):
     def __init__(self):
@@ -13,7 +15,7 @@ class State(object):
 class Start(State):
     def __init__(self):
         super().__init__()
-        self.next = 'game'
+        self.next = 'tutorial'
 
     def cleanup(self):
         print('')
@@ -57,6 +59,57 @@ class Start(State):
         for s in self.star_list:
             s.show(screen)
 
+class Tutorial(State):
+    def __init__(self):
+        super().__init__()
+        self.next = 'game'
+
+    def cleanup(self):
+        print('')
+
+    def startup(self):
+        self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+
+        self.tuto_text = get_font(75).render('TUTORIAL', True, '#b68f40')
+        self.tuto_rect = self.tuto_text.get_rect(center=(WIDTH // 2, 100))
+
+        self.line1 = get_font(15).render('!! WARNING WARNING !!', True, '#FFFFFF')
+        self.line1_rect = self.line1.get_rect(center=(WIDTH // 2, 200))
+        self.line2 = get_font(15).render('A SHOWER OF ASTEROIDS IS COMING TOWARD PLANET EARTH', True, '#FFFFFF')
+        self.line2_rect = self.line2.get_rect(center=(WIDTH // 2, 250))
+        self.line3 = get_font(15).render('FORTUNATLY, BRAND NEW LUNAR INSTALLATION LET US CONTROL ITS ORBIT !', True, '#FFFFFF')
+        self.line3_rect = self.line3.get_rect(center=(WIDTH // 2, 300))
+        self.line4 = get_font(15).render("USE THE UP KEY TO INCREASE THE MOON'S RADIUS", True, '#FFFFFF')
+        self.line4_rect = self.line4.get_rect(center=(WIDTH // 2, 400))
+        self.line5 = get_font(15).render("USE THE DOWN KEY TO DECREASE THE MOON'S RADIUS", True, '#FFFFFF')
+        self.line5_rect = self.line5.get_rect(center=(WIDTH // 2, 450))
+        self.line6 = get_font(15).render("USE THE W KEY TO INCREASE THE MOON'S VELOCITY", True, '#FFFFFF')
+        self.line6_rect = self.line6.get_rect(center=(WIDTH // 2, 500))
+        self.line7 = get_font(15).render("USE THE S KEY TO DECREASE THE MOON'S VELOCITY", True, '#FFFFFF')
+        self.line7_rect = self.line7.get_rect(center=(WIDTH // 2, 550))
+
+    def get_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            self.done = True
+
+    def update(self, screen, dt):
+        self.draw(screen)
+
+    def draw(self, screen):
+        screen.blit(BG, (0, 0))
+
+        for s in self.star_list:
+            s.show(screen)
+
+        screen.blit(self.tuto_text, self.tuto_rect)
+        screen.blit(self.line1, self.line1_rect)
+        screen.blit(self.line2, self.line2_rect)
+        screen.blit(self.line3, self.line3_rect)
+        screen.blit(self.line4, self.line4_rect)
+        screen.blit(self.line5, self.line5_rect)
+        screen.blit(self.line6, self.line6_rect)
+        screen.blit(self.line7, self.line7_rect)
+
 class Game(State):
     def __init__(self):
         super().__init__()
@@ -69,6 +122,62 @@ class Game(State):
         self.timer_counter = TIME_LIMIT
         EARTH.counter = 0
 
+    def predict_orbit(self, moon, earth, steps=300, step_size=1):
+        """
+        Predict the orbit of the moon around earth for a given number of steps.
+        Returns a list of predicted positions.
+        """
+        # Create copies to simulate movement without affecting actual objects
+        sim_moon = SimplifiedBody(
+            x=moon.x,
+            y=moon.y,
+            vx=moon.vx,
+            vy=moon.vy,
+            mass=moon.mass
+        )
+        sim_earth = SimplifiedBody(
+            x=earth.x,
+            y=earth.y,
+            vx=earth.vx,
+            vy=earth.vy,
+            mass=earth.mass
+        )
+        
+        positions = []
+        
+        for _ in range(steps):
+            # Calculate gravitational force
+            fx, fy = calculate_force(sim_moon, sim_earth)
+            
+            # Apply force for this time step
+            sim_moon.vx += fx * step_size / sim_moon.mass
+            sim_moon.vy += fy * step_size / sim_moon.mass
+            
+            # Update position
+            sim_moon.x += sim_moon.vx * step_size
+            sim_moon.y += sim_moon.vy * step_size
+            
+            # Store position
+            positions.append((int(sim_moon.x), int(sim_moon.y)))
+            
+            # Break if moon would collide with earth
+            if (sim_moon.x - sim_earth.x)**2 + (sim_moon.y - sim_earth.y)**2 < (45)**2:
+                break
+                
+        return positions
+
+    def draw_orbit_preview(self, screen):
+        """Draw the predicted orbit path as a dotted line"""
+        if not hasattr(self, 'orbit_preview') or self.orbit_preview_timer <= 0:
+            self.orbit_preview = self.predict_orbit(self.moon, EARTH)
+            self.orbit_preview_timer = 10  # Update prediction every 10 frames
+        else:
+            self.orbit_preview_timer -= 1
+        
+        # Draw only every 10th point to create dotted line effect
+        for pos in islice(self.orbit_preview, 0, None, 10):
+            pygame.draw.circle(screen, BLUE, pos, 2)
+        
     def startup(self):
         self.timer_event = pygame.USEREVENT + 1
         pygame.time.set_timer(self.timer_event, 1000)
@@ -83,6 +192,9 @@ class Game(State):
         #blinking stars 
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
+        self.orbit_preview_timer = 0
+        self.show_preview = True
+
     def get_event(self, event):
         if event.type == self.timer_event:
             if self.timer_counter % 10 == 0:
@@ -91,6 +203,7 @@ class Game(State):
             self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, WHITE)
             if self.timer_counter == 0:
                 pygame.time.set_timer(self.timer_event, 0)
+                self.next = 'win'
                 self.done = True
 
         # Handle keyboard controls for the moon
@@ -141,6 +254,8 @@ class Game(State):
                 speed_multiplier = 1 - self.velocity_change_rate
                 self.moon.vx *= speed_multiplier
                 self.moon.vy *= speed_multiplier
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+            self.show_preview = not self.show_preview
 
     def update(self, screen, dt):
         for i, body in enumerate(self.bodies):
@@ -179,8 +294,15 @@ class Game(State):
     def draw(self, screen):
         screen.fill((0, 0, 0)) 
 
-        screen.blit(self.timer_text, (0, 15))
+        if self.show_preview:
+            self.draw_orbit_preview(screen)
 
+        screen.blit(self.timer_text, (0, 15))
+        preview_text = get_font(20).render(
+            'Preview: ON (Tab to toggle)' if self.show_preview else 'Preview: OFF (Tab to toggle)', 
+            True, WHITE
+            )
+        screen.blit(preview_text, (0, 45))
         #blinking stars 
         for s in self.star_list:
             s.show(screen)
@@ -193,13 +315,13 @@ class Game(State):
 class Win(State):
     def __init__(self):
         super().__init__()
-        self.next = 'start'
+        self.next = 'game'
 
     def cleanup(self):
         print('Cleaning Win state')
     
     def startup(self):
-        self.menu_text = get_font(50).render('YOU WIN !', True, '#9ff9ff')
+        self.menu_text = get_font(50).render('YOU WIN !', True, '#7aeaff')
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
@@ -215,9 +337,9 @@ class Win(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 250),
+        self.play_button = Button(image=pygame.image.load('medium_rec.png'), pos=(WIDTH // 2, 280),
                              text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
-        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
+        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 480),
                              text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
 
         for button in [self.play_button, self.quit_button]:
@@ -245,6 +367,7 @@ class Game_Over(State):
         self.menu_text = get_font(50).render('GAME OVER', True, '#b68f40')
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
+        self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -257,7 +380,7 @@ class Game_Over(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 250),
+        self.play_button = Button(image=pygame.image.load('medium_rec.png'), pos=(WIDTH // 2, 250),
                              text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
         self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
                              text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
@@ -332,7 +455,8 @@ state_dict = {
     'start': Start(),
     'game': Game(),
     'win': Win(),
-    'game_over': Game_Over()
+    'game_over': Game_Over(),
+    'tutorial' : Tutorial()
 }
 app.setup_states(state_dict, 'start')
 app.main_game_loop()
