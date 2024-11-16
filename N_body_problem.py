@@ -19,25 +19,48 @@ PINK = (255, 192, 203)
 PURPLE = (128, 0, 128)
 YELLOW = (255, 255, 0)
 
-
-G = 1
+M_EARTH = 5.972e24
+M_ASTEROID = 1e12
+G = 6.67430e-11
 speed_cap = 2
-arr = np.array([[1,1],[1,1]])
-arr.tranpose()
 
 
 class Body:
-    def __init__(self, x:int, y:int, vx:float, vy:float, mass:float, color, body_type:str, type_props = {}):
-        self.x = x
-        self.y = y
-        self.vx = vx
-        self.vy = vy
-        self.mass = mass
-        self.color = color
-        self.trail = [(x, y)]
+    def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}):
+        if x is not None:
+            self.x = x
+        elif body_type == "asteroid":
+            self.x = randint(0, WIDTH)
+        else:
+            self.x = WIDTH//2
+        if y is not None:
+            self.y = y
+        elif body_type == "asteroid":
+            self.y = randint(0, WIDTH)
+        else:
+            self.y = WIDTH//2
+        if vx is not None:
+            self.vx = vx
+        else:
+            self.vx = 0
+        if vy is not None:
+            self.vy = vy
+        else:
+            self.vy = 0
+        if mass is not None:
+            self.mass = mass
+        elif body_type == "asteroid":
+            self.mass = M_ASTEROID
+        elif body_type == "planet":
+            self.mass = M_EARTH
+        if color is not None:
+            self.color = color
+        else:
+            self.color = BLUE
+        self.trail = [(self.x, self.y)]
         self.body_type = body_type
-        if self.body_type == "asteroid":
-            self.visible = type_props["visible"]
+        #if self.body_type == "asteroid":
+            #self.visible = type_props["visible"]
 
     def update_position(self):
         self.x += self.vx
@@ -75,7 +98,8 @@ def main():
     clock = pygame.time.Clock()
 
     # Initial conditions (scaled down)
-    body1 = Body(WIDTH // 2 - 10, HEIGHT // 2 - 10, 0, 0, 1, RED)
+    EARTH = Body(body_type="planet")
+    body1 = Body(color = RED)
     body2 = Body(WIDTH // 2 - 10, HEIGHT // 2 + 10, 0, 0, 1, GREEN)
     body3 = Body(WIDTH // 2 + 10, HEIGHT // 2 - 10, 0, 0, 1, BLUE)
     body4 = Body(WIDTH // 2 + 10, HEIGHT // 2 + 10, 0, 0, 1, BLACK)
@@ -84,7 +108,7 @@ def main():
     body7 = Body(WIDTH // 2 + 00, HEIGHT // 2 + 20, 0, 0, 1, PURPLE)
     body8 = Body(WIDTH // 2 - 00, HEIGHT // 2 - 20, 0, 0, 1, YELLOW)
 
-    bodies = [body1, body2, body3, body4, body5, body6, body7, body8]
+    bodies = [EARTH, body1]
 
     running = True
     while running:
