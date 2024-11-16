@@ -71,7 +71,7 @@ class Body:
         if radius is not None:
             self.radius = radius
         elif body_type == "planet":
-            self.radius = 25
+            self.radius = 80
         else:
             self.radius = 5
         if color is not None:
@@ -109,8 +109,10 @@ class Body:
         )
         # Center the sprite
         self.circle = screen.blit(self.sprite, self.sprite.get_rect(center=(int(self.x), int(self.y))))
-    
+
     def tail_display(self):
+        if self.body_type == "planet":
+            return
         for i in range(max(0, len(self.trail) - 500), len(self.trail)):
                 pygame.draw.circle(screen, self.color, (int(self.trail[i][0]), int(self.trail[i][1])), 2)
     
@@ -190,6 +192,7 @@ def main():
         screen.fill(WHITE)
 
         for i, body in enumerate(bodies):
+            collisions = 0
             for j in range(len(bodies)):
                 if i != j:
                     fx, fy = calculate_force(body, bodies[j])
@@ -206,12 +209,15 @@ def main():
             # Draw trail
             body.tail_display()
 
-            pygame.draw.circle(screen, RED, (int(EARTH.x), int(EARTH.y)), 2)
 
             if body != EARTH:
                 if body.circle.colliderect(EARTH.circle):
                     bodies.remove(body)
-
+                    collisions +=1
+                    if len(bodies) == 1:
+                       bodies.append(Body(body_type="asteroid"))
+        if bodies[0].mass > 2e30:
+            pygame.quit()
             
 
         #Draw timer
