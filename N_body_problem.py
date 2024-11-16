@@ -30,13 +30,16 @@ Scaling = R_EARTH/25
 G = 6.67430e-11
 speed_cap = 2
 
+#sprites
+EARTH_SPRITE = pygame.image.load('Earth.png')
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
 
 
 class Body:
-    def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, radius:int|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}):
+    def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, radius:int|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}, sprite = None):
         if x is not None:
             self.x = x
         elif body_type == "asteroid":
@@ -81,19 +84,47 @@ class Body:
             self.color = BLACK
         self.trail = [(self.x, self.y)]
         self.body_type = body_type
-        self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-        #if self.body_type == "asteroid":
-            #self.visible = type_props["visible"]
+        if sprite is not None:
+            self.sprite = sprite
+        elif body_type == "planet":
+            self.sprite = EARTH_SPRITE
+        else:
+            self.sprite = None
+        if self.sprite is not None:
+            self.scale_and_center_sprite()
+        else:
+            self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
+
+    def scale_and_center_sprite(self):
+        if self.sprite is None:
+            return
+
+        # Calculate the scale factor based on the radius
+        scale_factor = self.radius / max(self.sprite.get_width(), self.sprite.get_height())
+
+        # Scale the sprite
+        self.sprite = pygame.transform.smoothscale(
+            self.sprite,
+            (int(self.sprite.get_width() * scale_factor),
+             int(self.sprite.get_height() * scale_factor))
+        )
+        # Center the sprite
+        self.circle = screen.blit(self.sprite, self.sprite.get_rect(center=(int(self.x), int(self.y))))
+    
     def tail_display(self):
         for i in range(max(0, len(self.trail) - 500), len(self.trail)):
                 pygame.draw.circle(screen, self.color, (int(self.trail[i][0]), int(self.trail[i][1])), 2)
+    
     def update_position(self):
         self.x += self.vx
         self.x -= EARTH.vx
         self.y += self.vy
         self.y -= EARTH.vy
         self.trail.append((self.x, self.y))
-        self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
+        if self.sprite is not None:
+            self.scale_and_center_sprite()
+        else:
+            self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
     def apply_force(self, fx, fy):
         ax = fx / self.mass
@@ -125,7 +156,7 @@ EARTH = Body(body_type="planet")
 
 def main():
     pygame.init()
-    pygame.display.set_icon(pygame.image.load('Earth.png'))
+    pygame.display.set_icon(EARTH_SPRITE.convert_alpha())
     clock = pygame.time.Clock()
 
     # Timer initialization
