@@ -270,11 +270,11 @@ def main():
             if body != EARTH:
                 if body.circle.colliderect(EARTH.circle):
                     bodies.remove(body)
-                    collisions +=1
+                    EARTH.mass += 5e24
                     if len(bodies) == 1:
                        bodies.append(Body(body_type="asteroid"))
-        if bodies[0].mass > 2e30:
-            pygame.quit()
+                if EARTH.mass > 2e25:
+                    pygame.quit()
             
 
         #Draw timer
