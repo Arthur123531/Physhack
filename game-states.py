@@ -245,6 +245,7 @@ class Game_Over(State):
         self.menu_text = get_font(50).render('GAME OVER', True, '#b68f40')
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
+        self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
