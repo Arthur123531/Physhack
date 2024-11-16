@@ -31,7 +31,9 @@ Scaling = R_EARTH/25
 G = 6.67430e-11
 speed_cap = 2
 acc_cap = 10
-
+MOON_DIST = 384400000/Scaling/10
+MOON_MASS = 7.342e23
+MOON_VEL = 1022/Scaling*150
 #sprites
 EARTH_SPRITE = pygame.image.load('Earth.png')
 
@@ -44,24 +46,32 @@ class Body:
             self.x = x
         elif body_type == "asteroid":
             self.x = randint(WIDTH//4, 3*WIDTH//4)
+        elif body_type == "moon":
+            self.x = int(EARTH.x + MOON_DIST)
         else:
             self.x = WIDTH//2
         if y is not None:
             self.y = y
         elif body_type == "asteroid":
             self.y = randint(HEIGHT //4, 3*HEIGHT//4)
+        elif body_type == "moon":
+            self.y = EARTH.y 
         else:
             self.y = HEIGHT//2
         if vx is not None:
             self.vx = vx
         elif body_type == "planet":
             self.vx = 0
+        elif body_type == "moon":
+            self.vx = EARTH.vx
         else: 
             self.vx = randint(-100, 100)/200
         if vy is not None:
             self.vy = vy
         elif body_type == "planet":
             self.vy = 0
+        elif body_type == "moon":
+            self.vy = EARTH.vy+MOON_VEL
         else: 
             self.vy = randint(-100, 100)/200
         if mass is not None:
@@ -70,15 +80,19 @@ class Body:
             self.mass = M_ASTEROID
         elif body_type == "planet":
             self.mass = M_EARTH
+        elif body_type == "moon":
+            self.mass = MOON_MASS
         if radius is not None:
             self.radius = radius
         elif body_type == "planet":
             self.radius = 80
+        elif body_type == "moon":
+            self.radius = 20
         else:
             self.radius = 5
         if color is not None:
             self.color = color
-        elif body_type == "planet":
+        elif body_type == "planet" or body_type == "moon":
             self.color = BLUE
         else:
             self.color = BLACK
@@ -235,7 +249,7 @@ def main():
     # Initial conditions
     
 
-    bodies = [EARTH]
+    bodies = [EARTH, Body(body_type="moon")]
 
     running = True
     while running:
@@ -273,13 +287,14 @@ def main():
 
 
             if body != EARTH:
-                if body.circle.colliderect(EARTH.circle):
+                if ((body.x-EARTH.x)**2+(body.y-EARTH.y)**2)**.5 <= 40:
                     bodies.remove(body)
-                    EARTH.mass += 5e24
                     if len(bodies) == 1:
                        bodies.append(Body(body_type="asteroid"))
-                if EARTH.mass > 2e25:
-                    pygame.quit()
+                    collisions += 1
+                    if collisions > 10:
+                        pygame.quit()
+
             
 
         #Draw timer
