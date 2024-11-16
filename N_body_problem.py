@@ -11,7 +11,9 @@ from blink_stars import Star
 # Window dimensions and more
 WIDTH, HEIGHT = 1040, 680
 BG = pygame.image.load('galaxy_pixel.png')
-
+GAME_OVER_BG = pygame.image.load('GO_BG.png')
+GAME_OVER_BG = pygame.transform.scale(GAME_OVER_BG, (1040, 680))
+YOUWIN_BG = pygame.image.load('you_win.png')
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
