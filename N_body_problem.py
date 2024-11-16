@@ -27,7 +27,7 @@ arr.tranpose()
 
 
 class Body:
-    def __init__(self, x, y, vx, vy, mass, color, body_type, type_props = {}):
+    def __init__(self, x:int, y:int, vx:float, vy:float, mass:float, color, body_type:str, type_props = {}):
         self.x = x
         self.y = y
         self.vx = vx
@@ -35,6 +35,9 @@ class Body:
         self.mass = mass
         self.color = color
         self.trail = [(x, y)]
+        self.body_type = body_type
+        if self.body_type == "asteroid":
+            self.visible = type_props["visible"]
 
     def update_position(self):
         self.x += self.vx
