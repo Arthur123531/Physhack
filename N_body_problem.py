@@ -19,26 +19,31 @@ PINK = (255, 192, 203)
 PURPLE = (128, 0, 128)
 YELLOW = (255, 255, 0)
 
+#Constants
 M_EARTH = 5.972e24
 M_ASTEROID = 1e12
+R_EARTH = 6371e3
+Scaling = R_EARTH/25
 G = 6.67430e-11
 speed_cap = 2
 
 
+
+
 class Body:
-    def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}):
+    def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, radius:int|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}):
         if x is not None:
             self.x = x
         elif body_type == "asteroid":
-            self.x = randint(0, WIDTH)
+            self.x = randint(WIDTH//4, 3*WIDTH//4)
         else:
             self.x = WIDTH//2
         if y is not None:
             self.y = y
         elif body_type == "asteroid":
-            self.y = randint(0, WIDTH)
+            self.y = randint(HEIGHT //4, 3*HEIGHT//4)
         else:
-            self.y = WIDTH//2
+            self.y = HEIGHT//2
         if vx is not None:
             self.vx = vx
         else:
@@ -53,10 +58,18 @@ class Body:
             self.mass = M_ASTEROID
         elif body_type == "planet":
             self.mass = M_EARTH
+        if radius is not None:
+            self.radius = radius
+        elif body_type == "planet":
+            self.radius = 25
+        else:
+            self.radius = 5
         if color is not None:
             self.color = color
-        else:
+        elif body_type == "planet":
             self.color = BLUE
+        else:
+            self.color = BLACK
         self.trail = [(self.x, self.y)]
         self.body_type = body_type
         #if self.body_type == "asteroid":
@@ -64,13 +77,14 @@ class Body:
 
     def update_position(self):
         self.x += self.vx
+        self.x -= EARTH.vx
         self.y += self.vy
         self.trail.append((self.x, self.y))
 
     def apply_force(self, fx, fy):
         ax = fx / self.mass
         ay = fy / self.mass
-        if (ax**2+ay**2)**.5 < 1e-1:
+        if (ax**2+ay**2)**.5 < 10:
             self.vx += ax
             self.vy += ay
         if self.vx**2+self.vy**2 > speed_cap**2:
@@ -80,8 +94,8 @@ class Body:
             self.vy *= speed_cap
 
 def calculate_force(body1, body2):
-    dx = body2.x - body1.x
-    dy = body2.y - body1.y
+    dx = (body2.x - body1.x)*Scaling
+    dy = (body2.y - body1.y)*Scaling
     dist = math.sqrt(dx*dx + dy*dy)
     if dist > 0:
         force = G * body1.mass * body2.mass / (dist * dist)
@@ -92,23 +106,20 @@ def calculate_force(body1, body2):
     else:
         return 0, 0
 
+#Planet
+EARTH = Body(body_type="planet")
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
 
-    # Initial conditions (scaled down)
-    EARTH = Body(body_type="planet")
-    body1 = Body(color = RED)
-    body2 = Body(WIDTH // 2 - 10, HEIGHT // 2 + 10, 0, 0, 1, GREEN)
-    body3 = Body(WIDTH // 2 + 10, HEIGHT // 2 - 10, 0, 0, 1, BLUE)
-    body4 = Body(WIDTH // 2 + 10, HEIGHT // 2 + 10, 0, 0, 1, BLACK)
-    body5 = Body(WIDTH // 2 + 20, HEIGHT // 2 + 00, 0, 0, 1, ORANGE)
-    body6 = Body(WIDTH // 2 - 20, HEIGHT // 2 - 00, 0, 0, 1, PINK)
-    body7 = Body(WIDTH // 2 + 00, HEIGHT // 2 + 20, 0, 0, 1, PURPLE)
-    body8 = Body(WIDTH // 2 - 00, HEIGHT // 2 - 20, 0, 0, 1, YELLOW)
+    # Initial conditions
+    
 
-    bodies = [EARTH, body1]
+    bodies = [EARTH]
+    for i in range(5):
+        bodies.append(Body(body_type="asteroid"))
 
     running = True
     while running:
@@ -137,7 +148,7 @@ def main():
                 pygame.draw.circle(screen, body.color, (int(body.trail[k][0]), int(body.trail[k][1])), 2)
 
             # Draw body
-            pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), 5)
+            pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), body.radius)
 
         pygame.display.flip()
         clock.tick(60)
