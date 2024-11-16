@@ -1,3 +1,5 @@
+from itertools import count
+
 import pygame
 import math
 import numpy as np
@@ -6,6 +8,7 @@ from  random import randint
 
 
 # Window dimensions
+WIDTH, HEIGHT = 1040, 680
 WIDTH, HEIGHT = 1040, 680
 
 # Colors
@@ -114,6 +117,15 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
 
+    # Timer initialization
+    timer_event = pygame.USEREVENT + 1
+    pygame.time.set_timer(timer_event, 1000)
+    timer_counter = 10 # Change to whatever time we give
+
+    timer_font = pygame.font.SysFont('Arial', 30)
+    timer_text = timer_font.render('Timer: ' + str(timer_counter), True, BLACK)
+
+
     # Initial conditions
     
 
@@ -126,6 +138,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == timer_event:
+                timer_counter -= 1
+                timer_text = timer_font.render('Timer: ' + str(timer_counter), True, BLACK)
+                if timer_counter == 0:
+                    pygame.time.set_timer(timer_event, 0)
+                    timer_text = timer_font.render('You survived !' , True, BLACK)
 
         screen.fill(WHITE)
 
@@ -149,6 +167,9 @@ def main():
 
             # Draw body
             pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), body.radius)
+
+        #Draw timer
+        screen.blit(timer_text, (0,0))
 
         pygame.display.flip()
         clock.tick(60)
