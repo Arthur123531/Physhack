@@ -1,72 +1,97 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import pygame
+import math
 
-# Constants
-G = 6.67430e-11  # Gravitational constant in m^3 kg^-1 s^-2
+# Window dimensions
+WIDTH, HEIGHT = 800, 600
 
-class CelestialBody:
-    def __init__(self, name, mass, position, velocity):
-        self.name = name
+# Colors
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+G = 10000
+
+
+class Body:
+    def __init__(self, x, y, vx, vy, mass, color):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
         self.mass = mass
-        self.position = np.array(position).astype(float)
-        self.velocity = np.array(velocity).astype(float)
+        self.color = color
+        self.trail = [(x, y)]
+
+    def update_position(self):
+        self.x += self.vx
+        self.y += self.vy
+        self.trail.append((self.x, self.y))
+
+    def apply_force(self, fx, fy):
+        ax = fx / self.mass
+        ay = fy / self.mass
+        self.vx += ax
+        self.vy += ay
 
 def calculate_force(body1, body2):
-    r_vec = body2.position - body1.position
-    r_mag = np.linalg.norm(r_vec)
-    if r_mag > 0:
-        f_mag = G * body1.mass * body2.mass / r_mag**2
-        return f_mag * r_vec / r_mag
+    dx = body2.x - body1.x
+    dy = body2.y - body1.y
+    dist = math.sqrt(dx*dx + dy*dy)
+    if dist > 0:
+        force = G * body1.mass * body2.mass / (dist * dist)
+        angle = math.atan2(dy, dx)
+        fx = force * math.cos(angle)
+        fy = force * math.sin(angle)
+        return fx, fy
     else:
-        return np.zeros(3)
+        return 0, 0
 
-def update_bodies(bodies, dt):
-    for i in range(len(bodies)):
-        total_force = np.zeros(3)
-        for j in range(len(bodies)):
-            if i != j:
-                total_force += calculate_force(bodies[i], bodies[j])
-        
-        acceleration = total_force / bodies[i].mass
-        bodies[i].velocity += acceleration * dt
-        bodies[i].position += bodies[i].velocity * dt
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    clock = pygame.time.Clock()
 
-# Simulation parameters
-dt = 3600  # Time step in seconds (1 hour)
-total_time = 31536000 * 10  # Total simulation time in seconds (1 year)
+    # Initial conditions (scaled down)
+    body1 = Body(WIDTH // 2, HEIGHT // 2, 1, 0, 100, RED)
+    body2 = Body(WIDTH // 2 + 50, HEIGHT // 2, 0, 1, 100, GREEN)
+    body3 = Body(WIDTH // 2 + 25, HEIGHT // 2 + 43.30127, 1, 1, 100, BLUE)
 
-# Create celestial bodies
-sun = CelestialBody("Sun", 1.989e30, [0, 0, 0], [0, 0, 0])
-mercury = CelestialBody("Mercury", 3.285e23, [57.9e9, 0, 0], [0, 47.87e3, 0])
-venus = CelestialBody("Venus", 4.867e24, [108.2e9, 0, 0], [0, 35.02e3, 0])
-earth = CelestialBody("Earth", 5.972e24, [149.6e9, 0, 0], [0, 29.78e3, 0])
-mars = CelestialBody("Mars", 6.390e23, [227.9e9, 0, 0], [0, 24.07e3, 0])
-jupiter = CelestialBody("Jupiter", 1.898e27, [778.5e9, 0, 0], [0, 13.07e3, 0])
-saturn = CelestialBody("Saturn", 5.683e26, [1433.5e9, 0, 0], [0, 9.69e3, 0])
-uranus = CelestialBody("Uranus", 8.681e25, [2872.5e9, 0, 0], [0, 6.81e3, 0])
-neptune = CelestialBody("Neptune", 1.024e26, [4495.1e9, 0, 0], [0, 5.43e3, 0])
-#moon = CelestialBody("Moon", 7.342e22, [149.6e9 + 384.4e6, 0, 0], [0, 29.78e3 + 1.022e3, 0])
+    bodies = [body1, body2, body3]
 
-bodies = [sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]  # List of celestial bodies
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-# Run simulation
-positions = np.zeros((int(total_time/dt), len(bodies), 3))
-for t in range(int(total_time/dt)):
-    update_bodies(bodies, dt)
-    for i, body in enumerate(bodies):
-        positions[t, i] = body.position
+        screen.fill(WHITE)
 
-# Plot results
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
+        for i, body in enumerate(bodies):
+            for j in range(len(bodies)):
+                if i != j:
+                    fx, fy = calculate_force(body, bodies[j])
+                    body.apply_force(fx, fy)
 
-for i, body in enumerate(bodies):
-    ax.plot(positions[:, i, 0], positions[:, i, 1], positions[:, i, 2], label=body.name)
+            body.update_position()
 
-ax.set_xlabel('X (m)')
-ax.set_ylabel('Y (m)')
-ax.set_zlabel('Z (m)')
-plt.legend()
-plt.title('N-body Simulation')
-plt.show()
+            # Ensure bodies stay within the screen boundaries
+            if body.x < 0 or body.x > WIDTH:
+                body.vx *= -1
+            if body.y < 0 or body.y > HEIGHT:
+                body.vy *= -1
+
+            # Draw trail
+            for k in range(max(0, len(body.trail) - 500), len(body.trail)):
+                pygame.draw.circle(screen, body.color, (int(body.trail[k][0]), int(body.trail[k][1])), 2)
+
+            # Draw body
+            pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), 5)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
