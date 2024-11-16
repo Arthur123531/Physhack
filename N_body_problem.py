@@ -1,4 +1,6 @@
-import pygame, sys 
+from itertools import count
+
+import pygame
 import math
 import numpy as np
 from  random import randint
@@ -21,32 +23,115 @@ PURPLE = (128, 0, 128)
 YELLOW = (255, 255, 0)
 EARTH_MASS = 5.9722 * 10**24
 
-
-G = 6.6743e-11
+#Constants
+M_EARTH = 5.972e24
+M_ASTEROID = 1e12
+R_EARTH = 6371e3
+Scaling = R_EARTH/25
+G = 6.67430e-11
 speed_cap = 2
 
+#sprites
+EARTH_SPRITE = pygame.image.load('Earth.png')
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
 class Body:
-    def __init__(self, x, y, vx, vy, mass, color, radius, body_type, type_props = {}):
-        self.x = x
-        self.y = y
-        self.vx = vx
-        self.vy = vy
-        self.mass = mass
-        self.color = color
-        self.radius = radius 
-        self.trail = [(x, y)]
+    def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, radius:int|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}, sprite = None):
+        if x is not None:
+            self.x = x
+        elif body_type == "asteroid":
+            self.x = randint(WIDTH//4, 3*WIDTH//4)
+        else:
+            self.x = WIDTH//2
+        if y is not None:
+            self.y = y
+        elif body_type == "asteroid":
+            self.y = randint(HEIGHT //4, 3*HEIGHT//4)
+        else:
+            self.y = HEIGHT//2
+        if vx is not None:
+            self.vx = vx
+        elif body_type == "planet":
+            self.vx = 0
+        else: 
+            self.vx = randint(-100, 100)/200
+        if vy is not None:
+            self.vy = vy
+        elif body_type == "planet":
+            self.vy = 0
+        else: 
+            self.vy = randint(-100, 100)/200
+        if mass is not None:
+            self.mass = mass
+        elif body_type == "asteroid":
+            self.mass = M_ASTEROID
+        elif body_type == "planet":
+            self.mass = M_EARTH
+        if radius is not None:
+            self.radius = radius
+        elif body_type == "planet":
+            self.radius = 80
+        else:
+            self.radius = 5
+        if color is not None:
+            self.color = color
+        elif body_type == "planet":
+            self.color = BLUE
+        else:
+            self.color = BLACK
+        self.trail = [(self.x, self.y)]
+        self.body_type = body_type
+        if sprite is not None:
+            self.sprite = sprite
+        elif body_type == "planet":
+            self.sprite = EARTH_SPRITE
+        else:
+            self.sprite = None
+        if self.sprite is not None:
+            self.scale_and_center_sprite()
+        else:
+            self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
+        if body_type == "asteroid" and "visible" in type_props.keys():
+            self.visible = type_props["visible"]
+    def scale_and_center_sprite(self):
+        if self.sprite is None:
+            return
 
+        # Calculate the scale factor based on the radius
+        scale_factor = self.radius / max(self.sprite.get_width(), self.sprite.get_height())
+
+        # Scale the sprite
+        self.sprite = pygame.transform.smoothscale(
+            self.sprite,
+            (int(self.sprite.get_width() * scale_factor),
+             int(self.sprite.get_height() * scale_factor))
+        )
+        # Center the sprite
+        self.circle = screen.blit(self.sprite, self.sprite.get_rect(center=(int(self.x), int(self.y))))
+
+    def tail_display(self):
+        if self.body_type == "planet":
+            return
+        for i in range(max(0, len(self.trail) - 500), len(self.trail)):
+                pygame.draw.circle(screen, self.color, (int(self.trail[i][0]), int(self.trail[i][1])), 2)
+    
     def update_position(self):
         self.x += self.vx
+        self.x -= EARTH.vx
         self.y += self.vy
+        self.y -= EARTH.vy
         self.trail.append((self.x, self.y))
+        if self.sprite is not None:
+            self.scale_and_center_sprite()
+        else:
+            self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
     def apply_force(self, fx, fy):
         ax = fx / self.mass
         ay = fy / self.mass
-        if (ax**2+ay**2)**.5 < 1e-1:
+        if (ax**2+ay**2)**.5 < 10:
             self.vx += ax
             self.vy += ay
         if self.vx**2+self.vy**2 > speed_cap**2:
@@ -55,9 +140,10 @@ class Body:
             self.vx *= speed_cap
             self.vy *= speed_cap
 
+
 def calculate_force(body1, body2):
-    dx = body2.x - body1.x
-    dy = body2.y - body1.y
+    dx = (body2.x - body1.x)*Scaling*10
+    dy = (body2.y - body1.y)*Scaling*10
     dist = math.sqrt(dx*dx + dy*dy)
     if dist > 0:
         force = G * body1.mass * body2.mass / (dist * dist)
@@ -67,6 +153,9 @@ def calculate_force(body1, body2):
         return fx, fy
     else:
         return 0, 0
+
+#Planet
+EARTH = Body(body_type="planet")
 
 
 
@@ -126,30 +215,41 @@ def main_menu(): #main menu screen
 #game loop
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_icon(EARTH_SPRITE.convert_alpha())
     clock = pygame.time.Clock()
 
-    # Initial conditions (scaled down)
-    earth = Body(WIDTH // 2 - 10, HEIGHT // 2 - 10, 0, 0, EARTH_MASS, RED, 25, '')
-    body2 = Body(WIDTH// 2, HEIGHT//2 -55, 0.0005, 0.0005, 1, GREEN, 5,'')
-    body3 = Body(WIDTH // 2 + 10, HEIGHT // 2 - 10, 1, 1, 1, BLUE,5,'')
-    body4 = Body(WIDTH // 2 + 10, HEIGHT // 2 + 10, 0, 0, 1, BLACK,5,'')
-    body5 = Body(WIDTH // 2 + 20, HEIGHT // 2 + 00, 0, 0, 1, ORANGE,5,'')
-    body6 = Body(WIDTH // 2 - 20, HEIGHT // 2 - 00, 0, 0, 1, PINK,5,'')
-    body7 = Body(WIDTH // 2 + 00, HEIGHT // 2 + 20, 0, 0, 1, PURPLE,5,'')
-    body8 = Body(WIDTH // 2 - 00, HEIGHT // 2 - 20, 0, 0, 1, YELLOW,5,'')
+    # Timer initialization
+    timer_event = pygame.USEREVENT + 1
+    pygame.time.set_timer(timer_event, 1000)
+    timer_counter = 1000 # Change to whatever time we give
 
-    bodies = [earth, body2]
+    timer_font = pygame.font.SysFont('Arial', 30)
+    timer_text = timer_font.render('Timer: ' + str(timer_counter), True, BLACK)
+
+
+    # Initial conditions
+    
+
+    bodies = [EARTH]
 
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == timer_event:
+                if timer_counter % 10 == 0:
+                    bodies.append(Body(body_type="asteroid"))
+                timer_counter -= 1
+                timer_text = timer_font.render('Timer: ' + str(timer_counter), True, BLACK)
+                if timer_counter == 0:
+                    pygame.time.set_timer(timer_event, 0)
+                    timer_text = timer_font.render('You survived !' , True, BLACK)
 
         screen.fill(WHITE)
 
         for i, body in enumerate(bodies):
+            collisions = 0
             for j in range(len(bodies)):
                 if i != j:
                     fx, fy = calculate_force(body, bodies[j])
@@ -164,11 +264,21 @@ def main():
                 body.vy *= -1
 
             # Draw trail
-            for k in range(max(0, len(body.trail) - 500), len(body.trail)):
-                pygame.draw.circle(screen, body.color, (int(body.trail[k][0]), int(body.trail[k][1])), 2)
+            body.tail_display()
 
-            # Draw body
-            pygame.draw.circle(screen, body.color, (int(body.x), int(body.y)), body.radius)
+
+            if body != EARTH:
+                if body.circle.colliderect(EARTH.circle):
+                    bodies.remove(body)
+                    collisions +=1
+                    if len(bodies) == 1:
+                       bodies.append(Body(body_type="asteroid"))
+        if bodies[0].mass > 2e30:
+            pygame.quit()
+            
+
+        #Draw timer
+        screen.blit(timer_text, (0,0))
 
         pygame.display.flip()
         clock.tick(60)
