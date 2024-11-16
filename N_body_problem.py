@@ -5,6 +5,7 @@ import math
 import numpy as np
 from  random import randint
 from button import Button
+from blink_stars import Star
 
 
 # Window dimensions and more
@@ -35,6 +36,7 @@ acc_cap = 10
 
 #sprites
 EARTH_SPRITE = pygame.image.load('Earth.png')
+ASTEROID_SPRITE = pygame.image.load("asteroid.png")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -76,7 +78,7 @@ class Body:
         elif body_type == "planet":
             self.radius = 75
         else:
-            self.radius = 5
+            self.radius = 50
         if color is not None:
             self.color = color
         elif body_type == "planet":
@@ -88,7 +90,9 @@ class Body:
         if sprite is not None:
             self.sprite = sprite
         elif body_type == "planet":
-            self.sprite = EARTH_SPRITE
+            self.sprite = EARTH_SPRITE.convert_alpha()
+        elif body_type == "asteroid":
+            self.sprite = ASTEROID_SPRITE.convert_alpha()
         else:
             self.sprite = None
         if self.sprite is not None:
@@ -187,19 +191,22 @@ def main_menu(): #main menu screen
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
 
+    #blinking stars 
+    star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+
     running = True 
     while running:
         screen.blit(BG, (0,0))
 
         menu_mouse_pos = pygame.mouse.get_pos()
 
-        menu_text = get_font(50).render('PLANET LAND', True, '#b68f40')
+        menu_text = get_font(75).render('COSMOCRASH', True, '#b68f40')
         menu_rect = menu_text.get_rect(center=(WIDTH //2,100))
 
-        play_button = Button(image = pygame.image.load('Play Rect.png'), pos = (WIDTH //2, 250),
-                             text_input = 'PLAY', font = get_font(75), base_color = '#d7fcd4', hovering_color = 'White')
-        quit_button = Button(image = pygame.image.load('Quit Rect.png'), pos = (WIDTH //2, 450),
-                             text_input = 'QUIT', font = get_font(75), base_color = '#d7fcd4', hovering_color = 'White')
+        play_button = Button(image = pygame.image.load('Play Rect.png'), pos = (WIDTH //2, 280),
+                             text_input = 'PLAY', font = get_font(70), base_color = '#d7fcd4', hovering_color = 'White')
+        quit_button = Button(image = pygame.image.load('Quit Rect.png'), pos = (WIDTH //2, 480),
+                             text_input = 'QUIT', font = get_font(70), base_color = '#d7fcd4', hovering_color = 'White')
         
         screen.blit(menu_text, menu_rect)
 
@@ -220,6 +227,9 @@ def main_menu(): #main menu screen
                     #pygame.quit()
                     
         #pygame.display.update()
+        #stars 
+        for s in star_list:
+            s.show(screen)
         pygame.display.flip()
         clock.tick(60)
     pygame.quit()
@@ -284,7 +294,7 @@ def main():
             if body != EARTH:
                 if body.circle.colliderect(EARTH.circle):
                     bodies.remove(body)
-                    EARTH.mass += 5e24
+                    #EARTH.mass += 5e24
                     if len(bodies) == 1:
                        bodies.append(Body(body_type="asteroid"))
                 if EARTH.mass > 2e25:
