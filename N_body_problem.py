@@ -25,6 +25,7 @@ YELLOW = (255, 255, 0)
 #Constants
 M_EARTH = 5.972e24
 M_ASTEROID = 1e12
+M_MOON = 7.34767309e22
 R_EARTH = 6371e3
 Scaling = R_EARTH/25
 G = 6.67430e-11
@@ -71,7 +72,7 @@ class Body:
         if radius is not None:
             self.radius = radius
         elif body_type == "planet":
-            self.radius = 25
+            self.radius = 75
         else:
             self.radius = 5
         if color is not None:
@@ -154,6 +155,11 @@ def calculate_force(body1, body2):
 #Planet
 EARTH = Body(body_type="planet")
 
+#moon test 
+MOON1 = Body(WIDTH // 2 + 100, HEIGHT // 2 + 100, -0.5, 0.5, M_MOON, 10, BLUE, '' )
+#MOON2 = Body(WIDTH // 2 - 200, HEIGHT // 2 + 200, 0.1, 0.1, M_MOON, 10, BLUE, '' )
+#MOON3 = Body(WIDTH // 2 + 100, HEIGHT // 2 - 100, -0.5, 0.5, M_MOON, 10, BLUE, '' )
+
 def main():
     pygame.init()
     pygame.display.set_icon(EARTH_SPRITE.convert_alpha())
@@ -171,7 +177,7 @@ def main():
     # Initial conditions
     
 
-    bodies = [EARTH]
+    bodies = [EARTH, MOON1]
 
     running = True
     while running:
@@ -179,7 +185,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == timer_event:
-                if timer_counter % 10 == 0:
+                if timer_counter % 1 == 0:
                     bodies.append(Body(body_type="asteroid"))
                 timer_counter -= 1
                 timer_text = timer_font.render('Timer: ' + str(timer_counter), True, BLACK)
@@ -211,6 +217,17 @@ def main():
             if body != EARTH:
                 if body.circle.colliderect(EARTH.circle):
                     bodies.remove(body)
+
+        # Optional: Add control to manually adjust the moon's velocity
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            MOON1.vx -= 0.1  # Apply small change in x velocity
+        if keys[pygame.K_RIGHT]:
+            MOON1.vx += 0.1  # Apply small change in x velocity
+        if keys[pygame.K_UP]:
+            MOON1.vy -= 0.1  # Apply small change in y velocity
+        if keys[pygame.K_DOWN]:
+            MOON1.vy += 0.1  # Apply small change in y velocity
 
             
 
