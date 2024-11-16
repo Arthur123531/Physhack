@@ -236,7 +236,7 @@ class Game_Over(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 250),
+        self.play_button = Button(image=pygame.image.load('medium_rec.png'), pos=(WIDTH // 2, 250),
                              text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
         self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
                              text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
