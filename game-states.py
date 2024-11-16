@@ -269,7 +269,7 @@ class Win(State):
         print('Cleaning Win state')
     
     def startup(self):
-        self.menu_text = get_font(50).render('YOU WIN !', True, '#9ff9ff')
+        self.menu_text = get_font(50).render('YOU WIN !', True, '#7aeaff')
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
@@ -285,9 +285,9 @@ class Win(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 250),
+        self.play_button = Button(image=pygame.image.load('medium_rec.png'), pos=(WIDTH // 2, 280),
                              text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
-        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
+        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 480),
                              text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
 
         for button in [self.play_button, self.quit_button]:
@@ -328,7 +328,7 @@ class Game_Over(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 250),
+        self.play_button = Button(image=pygame.image.load('medium_rec.png'), pos=(WIDTH // 2, 250),
                              text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
         self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
                              text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
