@@ -11,7 +11,9 @@ from blink_stars import Star
 # Window dimensions and more
 WIDTH, HEIGHT = 1040, 680
 BG = pygame.image.load('galaxy_pixel.png')
-
+GAME_OVER_BG = pygame.image.load('GO_BG.png')
+GAME_OVER_BG = pygame.transform.scale(GAME_OVER_BG, (1040, 680))
+YOUWIN_BG = pygame.image.load('you_win.png')
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -39,6 +41,7 @@ MOON_VEL = 1022/Scaling*150
 #sprites
 EARTH_SPRITE = pygame.image.load('Earth.png')
 ASTEROID_SPRITE = pygame.image.load("asteroid.png")
+MOON_SPRITE = pygame.image.load("moon.png")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -90,7 +93,7 @@ class Body:
         elif body_type == "planet":
             self.radius = 80
         elif body_type == "moon":
-            self.radius = 20
+            self.radius = 50
         else:
             self.radius = 50
         if color is not None:
@@ -98,7 +101,7 @@ class Body:
         elif body_type == "planet" or body_type == "moon":
             self.color = BLUE
         else:
-            self.color = BLACK
+            self.color = WHITE
         self.trail = [(self.x, self.y)]
         self.body_type = body_type
         self.counter = 0
@@ -108,6 +111,8 @@ class Body:
             self.sprite = EARTH_SPRITE.convert_alpha()
         elif body_type == "asteroid":
             self.sprite = ASTEROID_SPRITE.convert_alpha()
+        elif body_type == "moon":
+            self.sprite = MOON_SPRITE.convert_alpha()
         else:
             self.sprite = None
         if self.sprite is not None:
