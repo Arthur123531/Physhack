@@ -1,7 +1,7 @@
 from N_body_problem import *
 from blink_stars import *
 
-TIME_LIMIT = 1000
+TIME_LIMIT = 10
 
 class State(object):
     def __init__(self):
@@ -170,7 +170,7 @@ class Game(State):
                 if EARTH.counter > 10:
                     self.next = 'game_over'
                     self.done = True
-            elif body != self.moon:
+            if body.body_type == "asteroid":
                 if (body.x-self.moon.x)**2 + (body.y-self.moon.y)**2 < (20)**2:
                     self.bodies.remove(body)
 
@@ -197,20 +197,41 @@ class Win(State):
 
     def cleanup(self):
         print('Cleaning Win state')
-
+    
     def startup(self):
-        self.state_text = state_font.render('Win', True, (0, 0, 0))
+        self.menu_text = get_font(50).render('YOU WIN !', True, '#9ff9ff')
+        self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
+        self.menu_mouse_pos = pygame.mouse.get_pos()
+        self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+
 
     def get_event(self, event):
-        if event.type == pygame.KEYDOWN:
-            self.done = True
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.play_button.checkForInput(self.menu_mouse_pos):
+                self.done = True
+            if self.quit_button.checkForInput(self.menu_mouse_pos):
+                self.quit = True
 
     def update(self, screen, dt):
+        self.menu_mouse_pos = pygame.mouse.get_pos()
+
+        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 250),
+                             text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
+                             text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+
+        for button in [self.play_button, self.quit_button]:
+            button.changeColor(self.menu_mouse_pos)
+
         self.draw(screen)
 
     def draw(self, screen):
-        screen.fill((255, 255, 255))
-        screen.blit(self.state_text, (0, 0))
+        screen.blit(YOUWIN_BG, (0, 0))
+        screen.blit(self.menu_text, self.menu_rect)
+        for button in [self.play_button, self.quit_button]:
+            button.update(screen)
+        for s in self.star_list:
+            s.show(screen)
 
 class Game_Over(State):
     def __init__(self):
@@ -247,10 +268,12 @@ class Game_Over(State):
         self.draw(screen)
 
     def draw(self, screen):
-        screen.blit(BG, (0, 0))
+        screen.blit(GAME_OVER_BG, (0, 0))
         screen.blit(self.menu_text, self.menu_rect)
         for button in [self.play_button, self.quit_button]:
             button.update(screen)
+        for s in self.star_list:
+            s.show(screen)
 
 # Object that runs the game loop and control the switching of states
 class Control:
