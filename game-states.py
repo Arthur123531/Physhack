@@ -15,7 +15,7 @@ class State(object):
 class Start(State):
     def __init__(self):
         super().__init__()
-        self.next = 'game'
+        self.next = 'tutorial'
 
     def cleanup(self):
         print('')
@@ -58,6 +58,57 @@ class Start(State):
         #blinking stars 
         for s in self.star_list:
             s.show(screen)
+
+class Tutorial(State):
+    def __init__(self):
+        super().__init__()
+        self.next = 'game'
+
+    def cleanup(self):
+        print('')
+
+    def startup(self):
+        self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+
+        self.tuto_text = get_font(75).render('TUTORIAL', True, '#b68f40')
+        self.tuto_rect = self.tuto_text.get_rect(center=(WIDTH // 2, 100))
+
+        self.line1 = get_font(15).render('!! WARNING WARNING !!', True, '#FFFFFF')
+        self.line1_rect = self.line1.get_rect(center=(WIDTH // 2, 200))
+        self.line2 = get_font(15).render('A SHOWER OF ASTEROIDS IS COMING TOWARD PLANET EARTH', True, '#FFFFFF')
+        self.line2_rect = self.line2.get_rect(center=(WIDTH // 2, 250))
+        self.line3 = get_font(15).render('FORTUNATLY, BRAND NEW LUNAR INSTALLATION LET US CONTROL ITS ORBIT !', True, '#FFFFFF')
+        self.line3_rect = self.line3.get_rect(center=(WIDTH // 2, 300))
+        self.line4 = get_font(15).render("USE THE UP KEY TO INCREASE THE MOON'S RADIUS", True, '#FFFFFF')
+        self.line4_rect = self.line4.get_rect(center=(WIDTH // 2, 400))
+        self.line5 = get_font(15).render("USE THE DOWN KEY TO DECREASE THE MOON'S RADIUS", True, '#FFFFFF')
+        self.line5_rect = self.line5.get_rect(center=(WIDTH // 2, 450))
+        self.line6 = get_font(15).render("USE THE W KEY TO INCREASE THE MOON'S VELOCITY", True, '#FFFFFF')
+        self.line6_rect = self.line6.get_rect(center=(WIDTH // 2, 500))
+        self.line7 = get_font(15).render("USE THE S KEY TO DECREASE THE MOON'S VELOCITY", True, '#FFFFFF')
+        self.line7_rect = self.line7.get_rect(center=(WIDTH // 2, 550))
+
+    def get_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            self.done = True
+
+    def update(self, screen, dt):
+        self.draw(screen)
+
+    def draw(self, screen):
+        screen.blit(BG, (0, 0))
+
+        for s in self.star_list:
+            s.show(screen)
+
+        screen.blit(self.tuto_text, self.tuto_rect)
+        screen.blit(self.line1, self.line1_rect)
+        screen.blit(self.line2, self.line2_rect)
+        screen.blit(self.line3, self.line3_rect)
+        screen.blit(self.line4, self.line4_rect)
+        screen.blit(self.line5, self.line5_rect)
+        screen.blit(self.line6, self.line6_rect)
+        screen.blit(self.line7, self.line7_rect)
 
 class Game(State):
     def __init__(self):
@@ -152,6 +203,7 @@ class Game(State):
             self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, WHITE)
             if self.timer_counter == 0:
                 pygame.time.set_timer(self.timer_event, 0)
+                self.next = 'win'
                 self.done = True
 
         # Handle keyboard controls for the moon
@@ -263,7 +315,7 @@ class Game(State):
 class Win(State):
     def __init__(self):
         super().__init__()
-        self.next = 'start'
+        self.next = 'game'
 
     def cleanup(self):
         print('Cleaning Win state')
@@ -403,7 +455,8 @@ state_dict = {
     'start': Start(),
     'game': Game(),
     'win': Win(),
-    'game_over': Game_Over()
+    'game_over': Game_Over(),
+    'tutorial' : Tutorial()
 }
 app.setup_states(state_dict, 'start')
 app.main_game_loop()
