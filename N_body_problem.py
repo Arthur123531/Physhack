@@ -36,8 +36,6 @@ EARTH_SPRITE = pygame.image.load('Earth.png')
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
-
-
 class Body:
     def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, radius:int|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}, sprite = None):
         if x is not None:
@@ -94,7 +92,8 @@ class Body:
             self.scale_and_center_sprite()
         else:
             self.circle = pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-
+        if body_type == "asteroid":
+            self.visible = type_props["visible"]
     def scale_and_center_sprite(self):
         if self.sprite is None:
             return
@@ -137,6 +136,7 @@ class Body:
             self.vy /= (self.vx**2+self.vy**2)**.5
             self.vx *= speed_cap
             self.vy *= speed_cap
+
 
 def calculate_force(body1, body2):
     dx = (body2.x - body1.x)*Scaling*10
