@@ -71,7 +71,7 @@ class Game(State):
         self.timer_counter = TIME_LIMIT
         EARTH.counter = 0
 
-    def predict_orbit(self, moon, earth, steps=100, step_size=0.1):
+    def predict_orbit(self, moon, earth, steps=300, step_size=1):
         """
         Predict the orbit of the moon around earth for a given number of steps.
         Returns a list of predicted positions.
@@ -123,9 +123,9 @@ class Game(State):
         else:
             self.orbit_preview_timer -= 1
         
-        # Draw only every 3rd point to create dotted line effect
-        for pos in islice(self.orbit_preview, 0, None, 3):
-            pygame.draw.circle(screen, BLUE, pos, 10)
+        # Draw only every 10th point to create dotted line effect
+        for pos in islice(self.orbit_preview, 0, None, 10):
+            pygame.draw.circle(screen, BLUE, pos, 2)
         
     def startup(self):
         self.timer_event = pygame.USEREVENT + 1
