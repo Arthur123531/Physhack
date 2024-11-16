@@ -59,6 +59,8 @@ class Game(State):
     def __init__(self):
         super().__init__()
         self.next = 'win'
+        self.distance_change_rate = 3  # Rate at which distance changes
+        self.velocity_change_rate = 0.1  # Rate at which velocity changes
 
     def cleanup(self):
         pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
@@ -66,16 +68,15 @@ class Game(State):
         EARTH.counter = 0
 
     def startup(self):
-        # self.state_text = state_font.render('Gaming', True, (255, 255, 255))
-
         self.timer_event = pygame.USEREVENT + 1
         pygame.time.set_timer(self.timer_event, 1000)
-        self.timer_counter = TIME_LIMIT  # Change to whatever time we give
+        self.timer_counter = TIME_LIMIT
 
         self.timer_font = pygame.font.SysFont('Arial', 30)
         self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, BLACK)
 
-        self.bodies = [EARTH]
+        self.bodies = [EARTH, Body(body_type="moon")]
+        self.moon = self.bodies[1]  # Store reference to moon for easier access
 
     def get_event(self, event):
         if event.type == self.timer_event:
@@ -87,9 +88,56 @@ class Game(State):
                 pygame.time.set_timer(self.timer_event, 0)
                 self.done = True
 
+        # Handle keyboard controls for the moon
+        keys = pygame.key.get_pressed()
+        
+        # Adjust moon's distance from Earth
+        if keys[pygame.K_UP]:
+            # Move moon away from Earth
+            dx = self.moon.x - EARTH.x
+            dy = self.moon.y - EARTH.y
+            distance = (dx**2 + dy**2)**0.5
+            if distance > 0:
+                # Normalize direction vector
+                dx /= distance
+                dy /= distance
+                # Move moon outward along this vector
+                self.moon.x += dx * self.distance_change_rate
+                self.moon.y += dy * self.distance_change_rate
+        
+        if keys[pygame.K_DOWN]:
+            # Move moon closer to Earth
+            dx = self.moon.x - EARTH.x
+            dy = self.moon.y - EARTH.y
+            distance = (dx**2 + dy**2)**0.5
+            if distance > 50:  # Minimum distance to prevent collision
+                dx /= distance
+                dy /= distance
+                self.moon.x -= dx * self.distance_change_rate
+                self.moon.y -= dy * self.distance_change_rate
+
+        # Adjust moon's velocity
+        if keys[pygame.K_w]:
+            # Increase velocity
+            current_speed = (self.moon.vx**2 + self.moon.vy**2)**0.5
+            if current_speed > 0:
+                speed_multiplier = 1 + self.velocity_change_rate
+                self.moon.vx *= speed_multiplier
+                self.moon.vy *= speed_multiplier
+            else:
+                # If stationary, give it a small initial velocity
+                self.moon.vx = self.velocity_change_rate
+                self.moon.vy = self.velocity_change_rate
+
+        if keys[pygame.K_s]:
+            # Decrease velocity
+            current_speed = (self.moon.vx**2 + self.moon.vy**2)**0.5
+            if current_speed > 0:
+                speed_multiplier = 1 - self.velocity_change_rate
+                self.moon.vx *= speed_multiplier
+                self.moon.vy *= speed_multiplier
 
     def update(self, screen, dt):
-
         for i, body in enumerate(self.bodies):
             collisions = 0
             for j in range(len(self.bodies)):
@@ -104,15 +152,22 @@ class Game(State):
                 body.vx *= -1
             if body.y < 0 or body.y > HEIGHT:
                 body.vy *= -1
-        if body != EARTH:
-            if body.circle.colliderect(EARTH.circle):
-                self.bodies.remove(body)
-                EARTH.counter += 1
-                if len(self.bodies) == 1:
-                    self.bodies.append(Body(body_type="asteroid"))
-            if EARTH.counter > 1:
-                self.next = 'game_over'
-                self.done = True
+            
+            if body != EARTH:
+                if (body.x-EARTH.x)**2 + (body.y-EARTH.y)**2 < (45)**2:
+                    self.bodies.remove(body)
+                    if body  == self.moon:
+                        self.next = 'game_over'
+                        self.done = True
+                    EARTH.counter += 1
+                    if len(self.bodies) == 1:
+                        self.bodies.append(Body(body_type="asteroid"))
+                if EARTH.counter > 10:
+                    self.next = 'game_over'
+                    self.done = True
+            elif body != self.moon:
+                if (body.x-self.moon.x)**2 + (body.y-self.moon.y)**2 < (20)**2:
+                    self.bodies.remove(body)
 
         self.draw(screen)
 
@@ -124,7 +179,6 @@ class Game(State):
             body.tail_display()
 
         screen.blit(self.timer_text, (0, 0))
-
 
 class Win(State):
     def __init__(self):
