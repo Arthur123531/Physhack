@@ -1,8 +1,12 @@
 import pygame
 import math
+import numpy as np
+from  random import randint
+
+
 
 # Window dimensions
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1040, 680
 
 # Colors
 WHITE = (255, 255, 255)
