@@ -45,6 +45,14 @@ MOON_SPRITE = pygame.image.load("moon.png")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
+class SimplifiedBody:
+    """A simplified version of Body class for orbit calculations"""
+    def __init__(self, x, y, vx, vy, mass):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        self.mass = mass
 
 class Body:
     def __init__(self, x:int|None = None, y:int|None = None, vx:float|None = None, vy:float|None = None, mass:float|None = None, radius:int|None = None, color:str|tuple[int]|None = None, body_type:str = "asteroid", type_props = {}, sprite = None):

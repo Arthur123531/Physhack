@@ -1,5 +1,7 @@
 from N_body_problem import *
 from blink_stars import *
+from itertools import islice
+
 
 TIME_LIMIT = 100
 
@@ -69,6 +71,62 @@ class Game(State):
         self.timer_counter = TIME_LIMIT
         EARTH.counter = 0
 
+    def predict_orbit(self, moon, earth, steps=100, step_size=0.1):
+        """
+        Predict the orbit of the moon around earth for a given number of steps.
+        Returns a list of predicted positions.
+        """
+        # Create copies to simulate movement without affecting actual objects
+        sim_moon = SimplifiedBody(
+            x=moon.x,
+            y=moon.y,
+            vx=moon.vx,
+            vy=moon.vy,
+            mass=moon.mass
+        )
+        sim_earth = SimplifiedBody(
+            x=earth.x,
+            y=earth.y,
+            vx=earth.vx,
+            vy=earth.vy,
+            mass=earth.mass
+        )
+        
+        positions = []
+        
+        for _ in range(steps):
+            # Calculate gravitational force
+            fx, fy = calculate_force(sim_moon, sim_earth)
+            
+            # Apply force for this time step
+            sim_moon.vx += fx * step_size / sim_moon.mass
+            sim_moon.vy += fy * step_size / sim_moon.mass
+            
+            # Update position
+            sim_moon.x += sim_moon.vx * step_size
+            sim_moon.y += sim_moon.vy * step_size
+            
+            # Store position
+            positions.append((int(sim_moon.x), int(sim_moon.y)))
+            
+            # Break if moon would collide with earth
+            if (sim_moon.x - sim_earth.x)**2 + (sim_moon.y - sim_earth.y)**2 < (45)**2:
+                break
+                
+        return positions
+
+    def draw_orbit_preview(self, screen):
+        """Draw the predicted orbit path as a dotted line"""
+        if not hasattr(self, 'orbit_preview') or self.orbit_preview_timer <= 0:
+            self.orbit_preview = self.predict_orbit(self.moon, EARTH)
+            self.orbit_preview_timer = 10  # Update prediction every 10 frames
+        else:
+            self.orbit_preview_timer -= 1
+        
+        # Draw only every 3rd point to create dotted line effect
+        for pos in islice(self.orbit_preview, 0, None, 3):
+            pygame.draw.circle(screen, BLUE, pos, 10)
+        
     def startup(self):
         self.timer_event = pygame.USEREVENT + 1
         pygame.time.set_timer(self.timer_event, 1000)
@@ -82,6 +140,9 @@ class Game(State):
 
         #blinking stars 
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+
+        self.orbit_preview_timer = 0
+        self.show_preview = True
 
     def get_event(self, event):
         if event.type == self.timer_event:
@@ -141,6 +202,8 @@ class Game(State):
                 speed_multiplier = 1 - self.velocity_change_rate
                 self.moon.vx *= speed_multiplier
                 self.moon.vy *= speed_multiplier
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+            self.show_preview = not self.show_preview
 
     def update(self, screen, dt):
         for i, body in enumerate(self.bodies):
@@ -179,8 +242,15 @@ class Game(State):
     def draw(self, screen):
         screen.fill((0, 0, 0)) 
 
-        screen.blit(self.timer_text, (0, 15))
+        if self.show_preview:
+            self.draw_orbit_preview(screen)
 
+        screen.blit(self.timer_text, (0, 15))
+        preview_text = get_font(20).render(
+            'Preview: ON (Tab to toggle)' if self.show_preview else 'Preview: OFF (Tab to toggle)', 
+            True, WHITE
+            )
+        screen.blit(preview_text, (0, 45))
         #blinking stars 
         for s in self.star_list:
             s.show(screen)
