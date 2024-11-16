@@ -27,7 +27,7 @@ arr.tranpose()
 
 
 class Body:
-    def __init__(self, x, y, vx, vy, mass, color, type, type_props = {}):
+    def __init__(self, x, y, vx, vy, mass, color, body_type, type_props = {}):
         self.x = x
         self.y = y
         self.vx = vx
