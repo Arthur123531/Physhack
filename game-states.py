@@ -52,6 +52,8 @@ class Start(State):
         screen.blit(self.menu_text, self.menu_rect)
         for button in [self.play_button, self.quit_button]:
             button.update(screen)
+
+        #blinking stars 
         for s in self.star_list:
             s.show(screen)
 
@@ -72,18 +74,21 @@ class Game(State):
         pygame.time.set_timer(self.timer_event, 1000)
         self.timer_counter = TIME_LIMIT
 
-        self.timer_font = pygame.font.SysFont('Arial', 30)
-        self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, BLACK)
+        self.timer_font = get_font(25)
+        self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, WHITE)
 
         self.bodies = [EARTH, Body(body_type="moon")]
         self.moon = self.bodies[1]  # Store reference to moon for easier access
+
+        #blinking stars 
+        self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
     def get_event(self, event):
         if event.type == self.timer_event:
             if self.timer_counter % 10 == 0:
                 self.bodies.append(Body(body_type="asteroid"))
             self.timer_counter -= 1
-            self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, BLACK)
+            self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, WHITE)
             if self.timer_counter == 0:
                 pygame.time.set_timer(self.timer_event, 0)
                 self.done = True
@@ -172,13 +177,18 @@ class Game(State):
         self.draw(screen)
 
     def draw(self, screen):
-        screen.fill((255, 255, 255))
+        screen.fill((0, 0, 0)) 
+
+        screen.blit(self.timer_text, (0, 15))
+
+        #blinking stars 
+        for s in self.star_list:
+            s.show(screen)
 
         for body in self.bodies:
-            body.draw_body()
             body.tail_display()
-
-        screen.blit(self.timer_text, (0, 0))
+            body.draw_body()
+            
 
 class Win(State):
     def __init__(self):

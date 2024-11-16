@@ -98,7 +98,7 @@ class Body:
         elif body_type == "planet" or body_type == "moon":
             self.color = BLUE
         else:
-            self.color = BLACK
+            self.color = WHITE
         self.trail = [(self.x, self.y)]
         self.body_type = body_type
         self.counter = 0
