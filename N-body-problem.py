@@ -6,11 +6,17 @@ WIDTH, HEIGHT = 800, 600
 
 # Colors
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+ORANGE = (255, 165, 0)
+PINK = (255, 192, 203)
+PURPLE = (128, 0, 128)
+YELLOW = (255, 255, 0)
 
-G = 10000
+G = 1
+speed_cap = 2
 
 
 class Body:
@@ -31,8 +37,14 @@ class Body:
     def apply_force(self, fx, fy):
         ax = fx / self.mass
         ay = fy / self.mass
-        self.vx += ax
-        self.vy += ay
+        if (ax**2+ay**2)**.5 < 1e-1:
+            self.vx += ax
+            self.vy += ay
+        if self.vx**2+self.vy**2 > speed_cap**2:
+            self.vx /= (self.vx**2+self.vy**2)**.5
+            self.vy /= (self.vx**2+self.vy**2)**.5
+            self.vx *= speed_cap
+            self.vy *= speed_cap
 
 def calculate_force(body1, body2):
     dx = body2.x - body1.x
@@ -53,11 +65,16 @@ def main():
     clock = pygame.time.Clock()
 
     # Initial conditions (scaled down)
-    body1 = Body(WIDTH // 2, HEIGHT // 2, 1, 0, 100, RED)
-    body2 = Body(WIDTH // 2 + 50, HEIGHT // 2, 0, 1, 100, GREEN)
-    body3 = Body(WIDTH // 2 + 25, HEIGHT // 2 + 43.30127, 1, 1, 100, BLUE)
+    body1 = Body(WIDTH // 2 - 10, HEIGHT // 2 - 10, 0, 0, 1, RED)
+    body2 = Body(WIDTH // 2 - 10, HEIGHT // 2 + 10, 0, 0, 1, GREEN)
+    body3 = Body(WIDTH // 2 + 10, HEIGHT // 2 - 10, 0, 0, 1, BLUE)
+    body4 = Body(WIDTH // 2 + 10, HEIGHT // 2 + 10, 0, 0, 1, BLACK)
+    body5 = Body(WIDTH // 2 + 20, HEIGHT // 2 + 00, 0, 0, 1, ORANGE)
+    body6 = Body(WIDTH // 2 - 20, HEIGHT // 2 - 00, 0, 0, 1, PINK)
+    body7 = Body(WIDTH // 2 + 00, HEIGHT // 2 + 20, 0, 0, 1, PURPLE)
+    body8 = Body(WIDTH // 2 - 00, HEIGHT // 2 - 20, 0, 0, 1, YELLOW)
 
-    bodies = [body1, body2, body3]
+    bodies = [body1, body2, body3, body4, body5, body6, body7, body8]
 
     running = True
     while running:
