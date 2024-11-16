@@ -53,8 +53,8 @@ class Game(State):
     def __init__(self):
         super().__init__()
         self.next = 'win'
-        self.distance_change_rate = 5  # Rate at which distance changes
-        self.velocity_change_rate = 0.2  # Rate at which velocity changes
+        self.distance_change_rate = 3  # Rate at which distance changes
+        self.velocity_change_rate = 0.1  # Rate at which velocity changes
 
     def cleanup(self):
         pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
@@ -148,14 +148,20 @@ class Game(State):
                 body.vy *= -1
             
             if body != EARTH:
-                if body.circle.colliderect(EARTH.circle):
+                if (body.x-EARTH.x)**2 + (body.y-EARTH.y)**2 < (45)**2:
                     self.bodies.remove(body)
+                    if body  == self.moon:
+                        self.next = 'game_over'
+                        self.done = True
                     EARTH.counter += 1
                     if len(self.bodies) == 1:
                         self.bodies.append(Body(body_type="asteroid"))
-                if EARTH.counter > 1:
+                if EARTH.counter > 10:
                     self.next = 'game_over'
                     self.done = True
+            elif body != self.moon:
+                if (body.x-self.moon.x)**2 + (body.y-self.moon.y)**2 < (20)**2:
+                    self.bodies.remove(body)
 
         self.draw(screen)
 

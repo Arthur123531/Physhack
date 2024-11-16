@@ -133,7 +133,8 @@ class Body:
         self.circle = screen.blit(self.sprite, self.sprite.get_rect(center=(int(self.x), int(self.y))))
     
     def tail_display(self):
-        for i in range(max(0, len(self.trail) - 500), len(self.trail)):
+        if self!=EARTH:
+            for i in range(max(0, len(self.trail) - 500), len(self.trail)):
                 pygame.draw.circle(screen, self.color, (int(self.trail[i][0]), int(self.trail[i][1])), 2)
     
     def update_position(self):
