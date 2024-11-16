@@ -30,6 +30,7 @@ R_EARTH = 6371e3
 Scaling = R_EARTH/25
 G = 6.67430e-11
 speed_cap = 2
+acc_cap = 10
 
 #sprites
 EARTH_SPRITE = pygame.image.load('Earth.png')
@@ -131,9 +132,13 @@ class Body:
     def apply_force(self, fx, fy):
         ax = fx / self.mass
         ay = fy / self.mass
-        if (ax**2+ay**2)**.5 < 10:
-            self.vx += ax
-            self.vy += ay
+        if (ax**2+ay**2)**.5 >= acc_cap:
+            ax /= (ax**2+ay**2)**.5
+            ay /= (ax**2+ay**2)**.5
+            ax *= acc_cap
+            ay *= acc_cap
+        self.vx += ax
+        self.vy += ay
         if self.vx**2+self.vy**2 > speed_cap**2:
             self.vx /= (self.vx**2+self.vy**2)**.5
             self.vy /= (self.vx**2+self.vy**2)**.5
@@ -270,11 +275,11 @@ def main():
             if body != EARTH:
                 if body.circle.colliderect(EARTH.circle):
                     bodies.remove(body)
-                    collisions +=1
+                    EARTH.mass += 5e24
                     if len(bodies) == 1:
                        bodies.append(Body(body_type="asteroid"))
-        if bodies[0].mass > 2e30:
-            pygame.quit()
+                if EARTH.mass > 2e25:
+                    pygame.quit()
             
 
         #Draw timer
