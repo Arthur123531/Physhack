@@ -7,13 +7,11 @@ from N_body_problem import Body
     - change by how much the mass increases when asteroid hits 
     - change by how much the radius increases when asteroid hits 
     """
-pygame.init()
 
-window = pygame.display.set_mode((1040,680))
+screen = pygame.display.set_mode((1040,680))
+background = pygame.Surface((1040,680))
 running = True
 r = 25 
-
-planet_skin = pygame.image.load('images.jpg')
 
 def spawn_asteroid(): 
     angle = random.randrange(1,360)
@@ -43,19 +41,21 @@ def spawn_asteroid():
     elif 315 <= angle < 360:
         x = 520 + 340 * np.tan(2 * np.pi - angle_rad)
         y = 0 
-    return Body(x, y, 0, 0, 1, 0,  "", body_type="asteroid", type_props={"visible":True})
+    return Body(x, y, 0, 0, 1, 0,  (255,0,0), filename=None, body_type="asteroid", type_props={"visible":True})
 
 asteroid1 = spawn_asteroid()
-Planet = Body(520,340, 0,0, 5.9722e24, 25, (255,0,0), body_type="planet", type_props={"visible":True})
+Planet = Body(520,340, 0,0, 5.9722e24, 25, (255,255,255), "images.jpg", body_type="planet", type_props={"visible":True})
+
+pygame.init()
 
 while running:
     cursor = pygame.mouse.get_pos()
-    window.fill((0, 0, 0))
-    planet = pygame.draw.circle(window, (0, 0, 255), (520, 340), r)
+    screen.fill((0, 0, 0))
+    #planet = pygame.draw.circle(window, (0, 0, 255), (520, 340), r)
     
     if asteroid1.visible:
         asteroid = pygame.Rect(asteroid1.x, asteroid1.y, 50, 50)
-        pygame.draw.rect(window, (255, 0, 0), asteroid)
+        pygame.draw.rect(screen, (255, 0, 0), asteroid)
 
         if asteroid1.x < cursor[0]:
             asteroid1.x += 2
@@ -67,9 +67,9 @@ while running:
         else:
             asteroid1.y -= 2
 
-        if asteroid.colliderect(planet):
+        if asteroid.colliderect(Planet):
             Planet.mass += 5e29
-            r += 2*np.pi*2
+            #r += 2*np.pi*2
             asteroid1.visible = False
     
     if Planet.mass>1.9e30:

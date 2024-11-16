@@ -19,9 +19,15 @@ G = 1
 speed_cap = 2
 
 class Body:
-    def __init__(self, x, y, vx, vy, mass, radius, color, body_type, type_props = {}, filename):
-        self.x = x
-        self.y = y
+    def __init__(self, x, y, vx, vy, mass, radius, color, filename, body_type, type_props = {}):
+        super().__init__()
+        
+        self.image = pygame.image.load(filename)
+        self.rect = self.image.get_rect()
+        
+        self.rect.x = x
+        self.rect.y = y
+        
         self.vx = vx
         self.vy = vy
         self.mass = mass
@@ -29,17 +35,16 @@ class Body:
         self.trail = [(x, y)]
         self.body_type = body_type
         self.radius = radius
-        self = self.sprite.get_rect_()
-        self.image = pygame.image.load(filename)
-    
+        
         if self.body_type == "asteroid":
             self.visible = type_props["visible"]
+    
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
         
-        def draw(self, screen):
-            screen.
     def update_position(self):
-        self.x += self.vx
-        self.y += self.vy
+        self.rect.x += self.vx
+        self.rect.y += self.vy
         self.trail.append((self.x, self.y))
 
     def apply_force(self, fx, fy):
