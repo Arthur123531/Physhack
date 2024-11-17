@@ -12,7 +12,7 @@ class Explosion(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         for num in range (1, 6):
-            img = pygame.image.load(f'explosion{num}.png')
+            img = pygame.image.load(f'images/explosion{num}.png')
             img.convert_alpha()
             self.images.append(img)
         self.index = 0
@@ -60,7 +60,7 @@ class Start(State):
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
         #music
-        pygame.mixer.music.load('space_intro.mp3')
+        pygame.mixer.music.load('sounds/space_intro.mp3')
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(60)
 
@@ -75,10 +75,10 @@ class Start(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('Play Rect.png'), pos=(WIDTH // 2, 280),
-                             text_input='PLAY', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
-        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 480),
-                             text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+        self.play_button = Button(image=pygame.image.load('images/Play Rect.png'), pos=(WIDTH // 2, 280),
+                                  text_input='PLAY', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+        self.quit_button = Button(image=pygame.image.load('images/Quit Rect.png'), pos=(WIDTH // 2, 480),
+                                  text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
 
         for button in [self.play_button, self.quit_button]:
             button.changeColor(self.menu_mouse_pos)
@@ -129,7 +129,7 @@ class Tutorial(State):
         self.line9_rect = self.line9.get_rect(center=(WIDTH // 2, 630))
 
         #music
-        pygame.mixer.music.load('tuto_sound.mp3')
+        pygame.mixer.music.load('sounds/tuto_sound.mp3')
         pygame.mixer.music.play(-1)
 
     def get_event(self, event):
@@ -170,6 +170,7 @@ class Game(State):
         self.velocity_change_rate = 1
         self.distance_change_rate = 0
         EARTH.counter = 0
+        self.explosion_group = pygame.sprite.Group()
 
     def predict_orbit(self, moon, earth, steps=300, step_size=1):
         """
@@ -250,10 +251,10 @@ class Game(State):
         pygame.draw.rect(screen, (255,0,0), (800,15,220,40))
         pygame.draw.rect(screen, (0,128,0), (800,15,220 - 22*EARTH.counter,40))
 
-        pygame.mixer.music.load('game_sound_EXTRA_TRIM.mp3')
+        pygame.mixer.music.load('sounds/game_sound.mp3')
         pygame.mixer.music.play(-1)
 
-        self.sound_hit = pygame.mixer.Sound('hit_sound.mp3')
+        self.sound_hit = pygame.mixer.Sound('sounds/hit_sound.mp3')
 
     def get_event(self, event):
         if event.type == self.timer_event:
@@ -395,7 +396,7 @@ class Win(State):
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
-        pygame.mixer.music.load('win_sound.mp3')
+        pygame.mixer.music.load('sounds/win_sound.mp3')
         pygame.mixer.music.play()
 
 
@@ -409,10 +410,10 @@ class Win(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('medium_rec.png'), pos=(WIDTH // 2, 280),
-                             text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
-        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 480),
-                             text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+        self.play_button = Button(image=pygame.image.load('images/medium_rec.png'), pos=(WIDTH // 2, 280),
+                                  text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+        self.quit_button = Button(image=pygame.image.load('images/Quit Rect.png'), pos=(WIDTH // 2, 480),
+                                  text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
 
         for button in [self.play_button, self.quit_button]:
             button.changeColor(self.menu_mouse_pos)
@@ -440,7 +441,7 @@ class Game_Over(State):
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
-        pygame.mixer.music.load('game_over.mp3')
+        pygame.mixer.music.load('sounds/game_over.mp3')
         pygame.mixer.music.play()
 
     def get_event(self, event):
@@ -454,10 +455,10 @@ class Game_Over(State):
     def update(self, screen, dt):
         self.menu_mouse_pos = pygame.mouse.get_pos()
 
-        self.play_button = Button(image=pygame.image.load('medium_rec.png'), pos=(WIDTH // 2, 250),
-                             text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
-        self.quit_button = Button(image=pygame.image.load('Quit Rect.png'), pos=(WIDTH // 2, 450),
-                             text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+        self.play_button = Button(image=pygame.image.load('images/medium_rec.png'), pos=(WIDTH // 2, 250),
+                                  text_input='PLAY AGAIN', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
+        self.quit_button = Button(image=pygame.image.load('images/Quit Rect.png'), pos=(WIDTH // 2, 450),
+                                  text_input='QUIT', font=get_font(75), base_color='#d7fcd4', hovering_color='White')
 
         for button in [self.play_button, self.quit_button]:
             button.changeColor(self.menu_mouse_pos)
@@ -518,20 +519,3 @@ class Control:
             self.event_loop()
             self.update(delta_time)
             pygame.display.update()
-
-
-pygame.init()
-
-state_font = pygame.font.SysFont("Arial", 32)
-
-app = Control()
-state_dict = {
-    'start': Start(),
-    'game': Game(),
-    'win': Win(),
-    'game_over': Game_Over(),
-    'tutorial' : Tutorial()
-}
-app.setup_states(state_dict, 'start')
-app.main_game_loop()
-pygame.quit()
