@@ -167,6 +167,8 @@ class Game(State):
     def cleanup(self):
         pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
         self.timer_counter = TIME_LIMIT
+        self.velocity_change_rate = 1
+        self.distance_change_rate = 0
         EARTH.counter = 0
 
     def predict_orbit(self, moon, earth, steps=300, step_size=1):
@@ -269,9 +271,9 @@ class Game(State):
             if event.key == pygame.K_DOWN and not event.key == pygame.K_UP:
                 self.distance_change_rate = -1
             if event.key == pygame.K_w and not event.key == pygame.K_s:
-                self.velocity_change_rate = 1.01
+                self.velocity_change_rate = 1.03
             if event.key == pygame.K_s and not event.key == pygame.K_w:
-                self.velocity_change_rate = 0.99
+                self.velocity_change_rate = 0.97
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
