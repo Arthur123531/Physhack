@@ -324,15 +324,14 @@ class Game(State):
                         self.next = 'game_over'
                         self.done = True
                     EARTH.counter += 1
-                    if len(self.bodies) == 1:
-                        self.bodies.append(Body(body_type="asteroid"))
                 if EARTH.counter > 10:
                     self.next = 'game_over'
                     self.done = True
             if body.body_type == "asteroid":
                 if (body.x-self.moon.x)**2 + (body.y-self.moon.y)**2 < (20)**2:
                     self.bodies.remove(body)
-
+        if not any(body.body_type == "asteroid" for body in self.bodies):
+            self.bodies.append(Body(body_type="asteroid"))
         self.draw(screen)
 
     def draw(self, screen):
