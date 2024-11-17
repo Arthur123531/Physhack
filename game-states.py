@@ -313,6 +313,9 @@ class Game(State):
 
             # Ensure bodies stay within the screen boundaries
             if body.x < -50 or body.x > WIDTH+50 or body.y < -50 or body.y > WIDTH+50:
+                if body == self.moon:
+                    self.next =  "game_over"
+                    self.done = True
                 self.bodies.remove(body)
             if body != EARTH:
                 if (body.x-EARTH.x)**2 + (body.y-EARTH.y)**2 < (45)**2:
