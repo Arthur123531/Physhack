@@ -1,7 +1,7 @@
 from N_body_problem import *
 from blink_stars import *
 
-TIME_LIMIT = 10
+TIME_LIMIT = 100
 
 class State(object):
     def __init__(self):
