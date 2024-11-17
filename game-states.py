@@ -59,6 +59,11 @@ class Start(State):
         #blinking stars 
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
+        #music
+        pygame.mixer.music.load('space_intro.mp3')
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(60)
+
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.play_button.checkForInput(self.menu_mouse_pos):
@@ -123,6 +128,10 @@ class Tutorial(State):
         self.line9 = get_font(15).render("PRESS ANY KEY TO CONTINUE!", True, '#b68f40')
         self.line9_rect = self.line9.get_rect(center=(WIDTH // 2, 630))
 
+        #music
+        pygame.mixer.music.load('tuto_sound.mp3')
+        pygame.mixer.music.play(-1)
+
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
             self.done = True
@@ -158,6 +167,8 @@ class Game(State):
     def cleanup(self):
         pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
         self.timer_counter = TIME_LIMIT
+        self.velocity_change_rate = 1
+        self.distance_change_rate = 0
         EARTH.counter = 0
 
     def predict_orbit(self, moon, earth, steps=300, step_size=1):
@@ -239,7 +250,10 @@ class Game(State):
         pygame.draw.rect(screen, (255,0,0), (800,15,220,40))
         pygame.draw.rect(screen, (0,128,0), (800,15,220 - 22*EARTH.counter,40))
 
+        pygame.mixer.music.load('game_sound.mp3')
+        pygame.mixer.music.play(-1)
 
+        self.sound_hit = pygame.mixer.Sound('hit_sound.mp3')
 
     def get_event(self, event):
         if event.type == self.timer_event:
@@ -257,9 +271,9 @@ class Game(State):
             if event.key == pygame.K_DOWN and not event.key == pygame.K_UP:
                 self.distance_change_rate = -1
             if event.key == pygame.K_w and not event.key == pygame.K_s:
-                self.velocity_change_rate = 1.01
+                self.velocity_change_rate = 1.03
             if event.key == pygame.K_s and not event.key == pygame.K_w:
-                self.velocity_change_rate = 0.99
+                self.velocity_change_rate = 0.97
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
@@ -271,56 +285,6 @@ class Game(State):
             if event.key == pygame.K_s:
                 self.velocity_change_rate = 1
 
-        '''
-        # Handle keyboard controls for the moon
-        keys = pygame.key.get_pressed()
-        
-        # Adjust moon's distance from Earth
-        if keys[pygame.K_UP]:
-            # Move moon away from Earth
-            dx = self.moon.x - EARTH.x
-            dy = self.moon.y - EARTH.y
-            distance = (dx**2 + dy**2)**0.5
-            if distance > 0:
-                # Normalize direction vector
-                dx /= distance
-                dy /= distance
-                # Move moon outward along this vector
-                self.moon.x += dx * self.distance_change_rate
-                self.moon.y += dy * self.distance_change_rate
-        
-        if keys[pygame.K_DOWN]:
-            # Move moon closer to Earth
-            dx = self.moon.x - EARTH.x
-            dy = self.moon.y - EARTH.y
-            distance = (dx**2 + dy**2)**0.5
-            if distance > 50:  # Minimum distance to prevent collision
-                dx /= distance
-                dy /= distance
-                self.moon.x -= dx * self.distance_change_rate
-                self.moon.y -= dy * self.distance_change_rate
-
-        # Adjust moon's velocity
-        if keys[pygame.K_w]:
-            # Increase velocity
-            current_speed = (self.moon.vx**2 + self.moon.vy**2)**0.5
-            if current_speed > 0:
-                speed_multiplier = 1 + self.velocity_change_rate
-                self.moon.vx *= speed_multiplier
-                self.moon.vy *= speed_multiplier
-            else:
-                # If stationary, give it a small initial velocity
-                self.moon.vx = self.velocity_change_rate
-                self.moon.vy = self.velocity_change_rate
-
-        if keys[pygame.K_s]:
-            # Decrease velocity
-            current_speed = (self.moon.vx**2 + self.moon.vy**2)**0.5
-            if current_speed > 0:
-                speed_multiplier = 1 - self.velocity_change_rate
-                self.moon.vx *= speed_multiplier
-                self.moon.vy *= speed_multiplier
-        '''
         if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
             self.show_preview = not self.show_preview
 
@@ -364,6 +328,9 @@ class Game(State):
                 if (body.x-EARTH.x)**2 + (body.y-EARTH.y)**2 < (45)**2:
                     self.bodies.remove(body)
                     self.explosion_group.add(Explosion(body.x, body.y))
+                    self.sound_hit.play()
+                    
+
                     if body  == self.moon:
                         self.next = 'game_over'
                         self.done = True
@@ -381,6 +348,7 @@ class Game(State):
                 if (body.x-self.moon.x)**2 + (body.y-self.moon.y)**2 < (20)**2:
                     self.bodies.remove(body)
                     self.explosion_group.add(Explosion(body.x, body.y))
+                    self.sound_hit.play()
         if not any(body.body_type == "asteroid" for body in self.bodies):
             self.bodies.append(Body(body_type="asteroid"))
         self.draw(screen)
@@ -427,6 +395,8 @@ class Win(State):
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+        pygame.mixer.music.load('win_sound.mp3')
+        pygame.mixer.music.play()
 
 
     def get_event(self, event):
@@ -470,6 +440,8 @@ class Game_Over(State):
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+        pygame.mixer.music.load('game_over.mp3')
+        pygame.mixer.music.play()
 
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
