@@ -3,7 +3,7 @@ from itertools import count
 import pygame
 import math
 import numpy as np
-from  random import randint
+import random 
 from button import Button
 from blink_stars import Star
 
@@ -11,6 +11,7 @@ from blink_stars import Star
 # Window dimensions and more
 WIDTH, HEIGHT = 1040, 680
 BG = pygame.image.load('galaxy_pixel.png')
+BG_DIM =  pygame.image.load('galaxy_pixel_dim.png')
 GAME_OVER_BG = pygame.image.load('GO_BG.png')
 GAME_OVER_BG = pygame.transform.scale(GAME_OVER_BG, (1040, 680))
 YOUWIN_BG = pygame.image.load('you_win.png')
@@ -45,6 +46,44 @@ MOON_SPRITE = pygame.image.load("moon2.png")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
+def asteroid_cords_and_speed_generator():
+    # Choose a random side of the screen
+    side = random.choice(['top', 'bottom', 'left', 'right'])
+    
+    # Generate position on the chosen side
+    if side == 'top':
+        x = random.uniform(0, WIDTH)
+        y = 0
+    elif side == 'bottom':
+        x = random.uniform(0, WIDTH)
+        y = HEIGHT
+    elif side == 'left':
+        x = 0
+        y = random.uniform(0, HEIGHT)
+    else:  # right
+        x = WIDTH
+        y = random.uniform(0, HEIGHT)
+    
+    # Calculate velocity components directed towards the center
+    center_x, center_y = WIDTH // 2, HEIGHT // 2
+    dx = center_x - x
+    dy = center_y - y
+    
+    # Normalize the velocity vector
+    speed = np.sqrt(dx**2 + dy**2)
+    vx = dx / speed
+    vy = dy / speed
+    
+    # Scale the velocity to a desired speed (adjust as needed)
+    desired_speed = 1  # Adjust this value to control the asteroid's speed
+    vx *= desired_speed
+    vy *= desired_speed
+    
+    return x, y, vx, vy
+
+
+
+
 class SimplifiedBody:
     """A simplified version of Body class for orbit calculations"""
     def __init__(self, x, y, vx, vy, mass):
@@ -59,7 +98,7 @@ class Body:
         if x is not None:
             self.x = x
         elif body_type == "asteroid":
-            self.x = randint(WIDTH//4, 3*WIDTH//4)
+            pass
         elif body_type == "moon":
             self.x = int(EARTH.x + MOON_DIST)
         else:
@@ -67,7 +106,7 @@ class Body:
         if y is not None:
             self.y = y
         elif body_type == "asteroid":
-            self.y = randint(HEIGHT //4, 3*HEIGHT//4)
+            pass
         elif body_type == "moon":
             self.y = EARTH.y 
         else:
@@ -78,16 +117,16 @@ class Body:
             self.vx = 0
         elif body_type == "moon":
             self.vx = EARTH.vx
-        else: 
-            self.vx = randint(-100, 100)/200
+        elif body_type == "asteroid": 
+            pass
         if vy is not None:
             self.vy = vy
         elif body_type == "planet":
             self.vy = 0
         elif body_type == "moon":
             self.vy = EARTH.vy+MOON_VEL
-        else: 
-            self.vy = randint(-100, 100)/200
+        elif body_type == "asteroid": 
+            self.x, self.y, self.vx, self.vy = asteroid_cords_and_speed_generator()
         if mass is not None:
             self.mass = mass
         elif body_type == "asteroid":
