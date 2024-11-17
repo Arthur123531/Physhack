@@ -1,3 +1,5 @@
+import pygame
+
 from N_body_problem import *
 from blink_stars import *
 from itertools import islice
@@ -114,8 +116,8 @@ class Game(State):
     def __init__(self):
         super().__init__()
         self.next = 'win'
-        self.distance_change_rate = 3  # Rate at which distance changes
-        self.velocity_change_rate = 0.1  # Rate at which velocity changes
+        self.distance_change_rate = 0  # Rate at which distance changes
+        self.velocity_change_rate = 1  # Rate at which velocity changes
 
     def cleanup(self):
         pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
@@ -205,7 +207,27 @@ class Game(State):
                 pygame.time.set_timer(self.timer_event, 0)
                 self.next = 'win'
                 self.done = True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and not event.key == pygame.K_DOWN:
+                self.distance_change_rate = 1
+            if event.key == pygame.K_DOWN and not event.key == pygame.K_UP:
+                self.distance_change_rate = -1
+            if event.key == pygame.K_w and not event.key == pygame.K_s:
+                self.velocity_change_rate = 1.01
+            if event.key == pygame.K_s and not event.key == pygame.K_w:
+                self.velocity_change_rate = 0.99
 
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP:
+                self.distance_change_rate = 0
+            if event.key == pygame.K_DOWN:
+                self.distance_change_rate = 0
+            if event.key == pygame.K_w:
+                self.velocity_change_rate = 1
+            if event.key == pygame.K_s:
+                self.velocity_change_rate = 1
+
+        '''
         # Handle keyboard controls for the moon
         keys = pygame.key.get_pressed()
         
@@ -254,10 +276,32 @@ class Game(State):
                 speed_multiplier = 1 - self.velocity_change_rate
                 self.moon.vx *= speed_multiplier
                 self.moon.vy *= speed_multiplier
+        '''
         if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
             self.show_preview = not self.show_preview
 
     def update(self, screen, dt):
+
+        # Move moon closer to Earth
+        dx = self.moon.x - EARTH.x
+        dy = self.moon.y - EARTH.y
+        distance = (dx ** 2 + dy ** 2) ** 0.5
+        if distance > 50:  # Minimum distance to prevent collision
+            dx /= distance
+            dy /= distance
+            self.moon.x += dx * self.distance_change_rate
+            self.moon.y += dy * self.distance_change_rate
+
+        # Increase velocity
+        current_speed = (self.moon.vx ** 2 + self.moon.vy ** 2) ** 0.5
+        if current_speed > 0:
+            self.moon.vx *= self.velocity_change_rate
+            self.moon.vy *= self.velocity_change_rate
+        else:
+            # If stationary, give it a small initial velocity
+            self.moon.vx = self.velocity_change_rate - 1
+            self.moon.vy = self.velocity_change_rate - 1
+
         for i, body in enumerate(self.bodies):
             collisions = 0
             for j in range(len(self.bodies)):
