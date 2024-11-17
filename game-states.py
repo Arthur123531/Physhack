@@ -250,7 +250,7 @@ class Game(State):
         pygame.draw.rect(screen, (255,0,0), (800,15,220,40))
         pygame.draw.rect(screen, (0,128,0), (800,15,220 - 22*EARTH.counter,40))
 
-        pygame.mixer.music.load('game_sound.mp3')
+        pygame.mixer.music.load('game_sound_EXTRA_TRIM.mp3')
         pygame.mixer.music.play(-1)
 
         self.sound_hit = pygame.mixer.Sound('hit_sound.mp3')
