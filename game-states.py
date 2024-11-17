@@ -312,11 +312,8 @@ class Game(State):
             body.update_position()
 
             # Ensure bodies stay within the screen boundaries
-            if body.x < 0 or body.x > WIDTH:
-                body.vx *= -1
-            if body.y < 0 or body.y > HEIGHT:
-                body.vy *= -1
-            
+            if body.x < -50 or body.x > WIDTH+50 or body.y < -50 or body.y > WIDTH+50:
+                self.bodies.remove(body)
             if body != EARTH:
                 if (body.x-EARTH.x)**2 + (body.y-EARTH.y)**2 < (45)**2:
                     self.bodies.remove(body)
