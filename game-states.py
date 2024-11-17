@@ -243,7 +243,7 @@ class Game(State):
 
     def get_event(self, event):
         if event.type == self.timer_event:
-            if self.timer_counter % 10 == 0:
+            if self.timer_counter % 10 == 0 and self.timer_counter != TIME_LIMIT:
                 self.bodies.append(Body(body_type="asteroid"))
             self.timer_counter -= 1
             self.timer_text = self.timer_font.render('Timer: ' + str(self.timer_counter), True, WHITE)
