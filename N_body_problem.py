@@ -10,11 +10,11 @@ from blink_stars import Star
 
 # Window dimensions and more
 WIDTH, HEIGHT = 1040, 680
-BG = pygame.image.load('galaxy_pixel.png')
-BG_DIM =  pygame.image.load('galaxy_pixel_dim.png')
-GAME_OVER_BG = pygame.image.load('GO_BG.png')
+BG = pygame.image.load('images/galaxy_pixel.png')
+BG_DIM =  pygame.image.load('images/galaxy_pixel_dim.png')
+GAME_OVER_BG = pygame.image.load('images/GO_BG.png')
 GAME_OVER_BG = pygame.transform.scale(GAME_OVER_BG, (1040, 680))
-YOUWIN_BG = pygame.image.load('you_win.png')
+YOUWIN_BG = pygame.image.load('images/you_win.png')
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -40,9 +40,9 @@ MOON_DIST = 384400000/Scaling/10
 MOON_MASS = 7.342e23
 MOON_VEL = 1022/Scaling*150
 #sprites
-EARTH_SPRITE = pygame.image.load('Earth2.png')
-ASTEROID_SPRITE = pygame.image.load("asteroid2.png")
-MOON_SPRITE = pygame.image.load("moon2.png")
+EARTH_SPRITE = pygame.image.load('images/Earth2.png')
+ASTEROID_SPRITE = pygame.image.load("images/asteroid2.png")
+MOON_SPRITE = pygame.image.load("images/moon2.png")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -239,4 +239,4 @@ EARTH = Body(body_type="planet")
 def get_font(size): 
     #pygame.font.Font("font.ttf", size) NOT WORKING
     pygame.font.init()
-    return pygame.font.Font("font.ttf", size)
+    return pygame.font.Font("font/font.ttf", size)
