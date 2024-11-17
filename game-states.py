@@ -4,7 +4,7 @@ from N_body_problem import *
 from blink_stars import *
 from itertools import islice
 
-
+pygame.display.set_caption('Cosmocrash')
 TIME_LIMIT = 100
 
 class State(object):
@@ -77,18 +77,22 @@ class Tutorial(State):
 
         self.line1 = get_font(15).render('!! WARNING WARNING !!', True, '#FFFFFF')
         self.line1_rect = self.line1.get_rect(center=(WIDTH // 2, 200))
-        self.line2 = get_font(15).render('A SHOWER OF ASTEROIDS IS COMING TOWARD PLANET EARTH', True, '#FFFFFF')
+        self.line2 = get_font(15).render('A SHOWER OF ASTEROIDS IS COMING TOWARD PLANET EARTH!', True, '#FFFFFF')
         self.line2_rect = self.line2.get_rect(center=(WIDTH // 2, 250))
-        self.line3 = get_font(15).render('FORTUNATLY, BRAND NEW LUNAR INSTALLATION LET US CONTROL ITS ORBIT !', True, '#FFFFFF')
+        self.line3 = get_font(15).render('FORTUNATLY, BRAND NEW LUNAR INSTALLATIONS LET US', True, '#FFFFFF')
         self.line3_rect = self.line3.get_rect(center=(WIDTH // 2, 300))
-        self.line4 = get_font(15).render("USE THE UP KEY TO INCREASE THE MOON'S RADIUS", True, '#FFFFFF')
-        self.line4_rect = self.line4.get_rect(center=(WIDTH // 2, 400))
-        self.line5 = get_font(15).render("USE THE DOWN KEY TO DECREASE THE MOON'S RADIUS", True, '#FFFFFF')
-        self.line5_rect = self.line5.get_rect(center=(WIDTH // 2, 450))
-        self.line6 = get_font(15).render("USE THE W KEY TO INCREASE THE MOON'S VELOCITY", True, '#FFFFFF')
-        self.line6_rect = self.line6.get_rect(center=(WIDTH // 2, 500))
-        self.line7 = get_font(15).render("USE THE S KEY TO DECREASE THE MOON'S VELOCITY", True, '#FFFFFF')
-        self.line7_rect = self.line7.get_rect(center=(WIDTH // 2, 550))
+        self.line4 = get_font(15).render('CONTROL THE MOON\'s ORBIT TO DEFEND OUR PLANET!', True, '#FFFFFF')
+        self.line4_rect = self.line4.get_rect(center=(WIDTH // 2, 350))
+        self.line5 = get_font(15).render("USE THE UP KEY TO INCREASE THE MOON'S RADIUS", True, '#FFFFFF')
+        self.line5_rect = self.line5.get_rect(center=(WIDTH // 2, 430))
+        self.line6 = get_font(15).render("USE THE DOWN KEY TO DECREASE THE MOON'S RADIUS", True, '#FFFFFF')
+        self.line6_rect = self.line6.get_rect(center=(WIDTH // 2, 480))
+        self.line7 = get_font(15).render("USE THE W KEY TO INCREASE THE MOON'S VELOCITY", True, '#FFFFFF')
+        self.line7_rect = self.line7.get_rect(center=(WIDTH // 2, 530))
+        self.line8 = get_font(15).render("USE THE S KEY TO DECREASE THE MOON'S VELOCITY", True, '#FFFFFF')
+        self.line8_rect = self.line8.get_rect(center=(WIDTH // 2, 580))
+        self.line9 = get_font(15).render("PRESS ANY KEY TO CONTINUE!", True, '#b68f40')
+        self.line9_rect = self.line9.get_rect(center=(WIDTH // 2, 630))
 
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -98,7 +102,7 @@ class Tutorial(State):
         self.draw(screen)
 
     def draw(self, screen):
-        screen.blit(BG, (0, 0))
+        screen.blit(BG_DIM, (0, 0))
 
         for s in self.star_list:
             s.show(screen)
@@ -111,6 +115,8 @@ class Tutorial(State):
         screen.blit(self.line5, self.line5_rect)
         screen.blit(self.line6, self.line6_rect)
         screen.blit(self.line7, self.line7_rect)
+        screen.blit(self.line8, self.line8_rect)
+        screen.blit(self.line9, self.line9_rect)
 
 class Game(State):
     def __init__(self):
