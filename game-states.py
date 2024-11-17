@@ -30,6 +30,11 @@ class Start(State):
         #blinking stars 
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
 
+        #music
+        pygame.mixer.music.load('space_intro.mp3')
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(60)
+
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.play_button.checkForInput(self.menu_mouse_pos):
@@ -93,6 +98,10 @@ class Tutorial(State):
         self.line8_rect = self.line8.get_rect(center=(WIDTH // 2, 580))
         self.line9 = get_font(15).render("PRESS ANY KEY TO CONTINUE!", True, '#b68f40')
         self.line9_rect = self.line9.get_rect(center=(WIDTH // 2, 630))
+
+        #music
+        pygame.mixer.music.load('tuto_sound.mp3')
+        pygame.mixer.music.play(-1)
 
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -208,6 +217,9 @@ class Game(State):
         
         pygame.draw.rect(screen, (255,0,0), (800,15,220,40))
         pygame.draw.rect(screen, (0,128,0), (800,15,220 - 22*EARTH.counter,40))
+
+        pygame.mixer.music.load('game_sound.mp3')
+        pygame.mixer.music.play(-1)
 
     def get_event(self, event):
         if event.type == self.timer_event:
@@ -391,6 +403,8 @@ class Win(State):
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+        pygame.mixer.music.load('win_sound.mp3')
+        pygame.mixer.music.play()
 
 
     def get_event(self, event):
@@ -434,6 +448,8 @@ class Game_Over(State):
         self.menu_rect = self.menu_text.get_rect(center=(WIDTH // 2, 100))
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.star_list = [Star(WIDTH, HEIGHT) for _ in range(300)]
+        pygame.mixer.music.load('game_over.mp3')
+        pygame.mixer.music.play()
 
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
