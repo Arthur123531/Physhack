@@ -7,6 +7,35 @@ from itertools import islice
 
 TIME_LIMIT = 100
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.images = []
+        for num in range (1, 6):
+            img = pygame.image.load(f'explosion{num}.png')
+            img.convert_alpha()
+            self.images.append(img)
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.frame_counter = 0
+
+    def update(self):
+        explosion_speed = 4
+        # update explosion animation
+        self.frame_counter += 1
+
+        if self.frame_counter >= explosion_speed and self.index < len(self.images) - 1:
+            self.frame_counter = 0
+            self.index += 1
+            self.image = self.images[self.index]
+
+        # if the animation is complete, reset animation index
+        if self.index >= len(self.images) - 1 and self.frame_counter >= explosion_speed:
+            self.kill()
+
+
 class State(object):
     def __init__(self):
         self.done = False
@@ -118,6 +147,7 @@ class Game(State):
         self.next = 'win'
         self.distance_change_rate = 0  # Rate at which distance changes
         self.velocity_change_rate = 1  # Rate at which velocity changes
+        self.explosion_group = pygame.sprite.Group()
 
     def cleanup(self):
         pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
@@ -196,6 +226,8 @@ class Game(State):
 
         self.orbit_preview_timer = 0
         self.show_preview = True
+
+
 
     def get_event(self, event):
         if event.type == self.timer_event:
@@ -320,20 +352,24 @@ class Game(State):
             if body != EARTH:
                 if (body.x-EARTH.x)**2 + (body.y-EARTH.y)**2 < (45)**2:
                     self.bodies.remove(body)
+                    self.explosion_group.add(Explosion(body.x, body.y))
                     if body  == self.moon:
                         self.next = 'game_over'
                         self.done = True
                     EARTH.counter += 1
                     if len(self.bodies) == 1:
                         self.bodies.append(Body(body_type="asteroid"))
-                if EARTH.counter > 10:
+                if EARTH.counter >= 10:
                     self.next = 'game_over'
                     self.done = True
             if body.body_type == "asteroid":
                 if (body.x-self.moon.x)**2 + (body.y-self.moon.y)**2 < (20)**2:
                     self.bodies.remove(body)
+                    self.explosion_group.add(Explosion(body.x, body.y))
 
         self.draw(screen)
+        self.explosion_group.draw(screen)
+        self.explosion_group.update()
 
     def draw(self, screen):
         screen.fill((0, 0, 0)) 
