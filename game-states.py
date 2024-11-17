@@ -194,6 +194,12 @@ class Game(State):
 
         self.orbit_preview_timer = 0
         self.show_preview = True
+        
+        self.healthbar_font = get_font(15)
+        self.healthbar_text = self.healthbar_font.render('Health', True, WHITE)
+        
+        pygame.draw.rect(screen, (255,0,0), (800,15,220,40))
+        pygame.draw.rect(screen, (0,128,0), (800,15,220 - 22*EARTH.counter,40))
 
     def get_event(self, event):
         if event.type == self.timer_event:
@@ -259,7 +265,6 @@ class Game(State):
 
     def update(self, screen, dt):
         for i, body in enumerate(self.bodies):
-            collisions = 0
             for j in range(len(self.bodies)):
                 if i != j:
                     fx, fy = calculate_force(body, self.bodies[j])
@@ -280,6 +285,10 @@ class Game(State):
                         self.next = 'game_over'
                         self.done = True
                     EARTH.counter += 1
+                    
+                    pygame.draw.rect(screen, (255,0,0), (800,15,220,40))
+                    pygame.draw.rect(screen, (0,128,0), (800,15,220 - 22*EARTH.counter,40))
+        
                     if len(self.bodies) == 1:
                         self.bodies.append(Body(body_type="asteroid"))
                 if EARTH.counter > 10:
@@ -298,6 +307,8 @@ class Game(State):
             self.draw_orbit_preview(screen)
 
         screen.blit(self.timer_text, (0, 15))
+    
+        
         preview_text = get_font(20).render(
             'Preview: ON (Tab to toggle)' if self.show_preview else 'Preview: OFF (Tab to toggle)', 
             True, WHITE
@@ -310,6 +321,10 @@ class Game(State):
         for body in self.bodies:
             body.tail_display()
             body.draw_body()
+            
+        pygame.draw.rect(screen, (255,0,0), (800,15,220,40))
+        pygame.draw.rect(screen, (0,128,0), (800,15,220 - 22*EARTH.counter,40))
+        screen.blit(self.healthbar_text, (925,60))
             
 
 class Win(State):
