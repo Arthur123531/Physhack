@@ -39,9 +39,9 @@ MOON_DIST = 384400000/Scaling/10
 MOON_MASS = 7.342e23
 MOON_VEL = 1022/Scaling*150
 #sprites
-EARTH_SPRITE = pygame.image.load('Earth.png')
-ASTEROID_SPRITE = pygame.image.load("asteroid.png")
-MOON_SPRITE = pygame.image.load("moon.png")
+EARTH_SPRITE = pygame.image.load('Earth2.png')
+ASTEROID_SPRITE = pygame.image.load("asteroid2.png")
+MOON_SPRITE = pygame.image.load("moon2.png")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 

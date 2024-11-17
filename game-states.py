@@ -170,7 +170,7 @@ class Game(State):
         """Draw the predicted orbit path as a dotted line"""
         if not hasattr(self, 'orbit_preview') or self.orbit_preview_timer <= 0:
             self.orbit_preview = self.predict_orbit(self.moon, EARTH)
-            self.orbit_preview_timer = 10  # Update prediction every 10 frames
+            self.orbit_preview_timer = 5  # Update prediction every 10 frames
         else:
             self.orbit_preview_timer -= 1
         
